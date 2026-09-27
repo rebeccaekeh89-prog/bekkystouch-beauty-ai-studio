@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Upload, Camera, CheckCircle2, Sparkles, AlertCircle, BookOpen } from 'lucide-react';
+import { X, Upload, Camera, CheckCircle2, Sparkles, AlertCircle, BookOpen, Download } from 'lucide-react';
 import { Product } from '../types';
 
 interface ImageUploadModalProps {
@@ -100,24 +100,6 @@ export function ImageUploadModal({
     }
 
     try {
-      // 1. Post to backend Vite server to overwrite public/ file
-      try {
-        const res = await fetch('/api/upload-image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            filename: targetFilename,
-            base64Data: previewUrl,
-          }),
-        });
-        if (!res.ok) {
-          console.warn('Backend upload returned non-200, continuing with client state sync');
-        }
-      } catch (err) {
-        console.warn('Server endpoint upload failed, continuing with client persistence:', err);
-      }
-
-      // 2. Update React State & LocalStorage
       if (isPhilosophy && onUpdatePhilosophyImage) {
         await onUpdatePhilosophyImage(previewUrl);
         setSuccessMsg('Successfully updated Philosophy & Craft photo!');
@@ -353,14 +335,27 @@ export function ImageUploadModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-stone-200 bg-[#FBF9F5] flex items-center justify-between">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-200/60 rounded-lg transition-colors cursor-pointer"
-          >
-            Close
-          </button>
+        <div className="p-4 border-t border-stone-200 bg-[#FBF9F5] flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-200/60 rounded-lg transition-colors cursor-pointer"
+            >
+              Close
+            </button>
+            {previewUrl && (
+              <a
+                href={previewUrl}
+                download={isPhilosophy ? 'philosophy.jpg' : `${currentProduct?.name.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'photo'}.jpg`}
+                className="px-3 py-2 text-xs font-medium text-stone-700 hover:text-stone-900 bg-white border border-stone-300 rounded-lg hover:bg-stone-50 flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="Download this image directly to your device"
+              >
+                <Download className="w-3.5 h-3.5 text-stone-600" />
+                <span>Download File</span>
+              </a>
+            )}
+          </div>
           <button
             type="button"
             disabled={!previewUrl || uploading}

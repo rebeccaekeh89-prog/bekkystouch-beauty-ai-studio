@@ -167,13 +167,7 @@ export default function App() {
   const [accountModalMode, setAccountModalMode] = useState<'signin' | 'signup' | 'forgot' | 'update_password'>('signin');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadModalTarget, setUploadModalTarget] = useState<'philosophy' | number | null>(null);
-  const [philosophyImage, setPhilosophyImage] = useState<string>(() => {
-    try {
-      return localStorage.getItem('bekkys_touch_philosophy_img') || '/philosophy.jpg';
-    } catch {
-      return '/philosophy.jpg';
-    }
-  });
+  const [philosophyImage, setPhilosophyImage] = useState<string>('/Philosophy.png');
   const [completedOrder, setCompletedOrder] = useState<CustomerOrder | null>(null);
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -197,11 +191,6 @@ export default function App() {
 
   const handleUpdatePhilosophyImage = async (newImageUrl: string) => {
     setPhilosophyImage(newImageUrl);
-    try {
-      localStorage.setItem('bekkys_touch_philosophy_img', newImageUrl);
-    } catch (e) {
-      console.warn('Failed to persist philosophy image to localStorage', e);
-    }
     showToast('Our Philosophy & Craft photo updated successfully!');
   };
 

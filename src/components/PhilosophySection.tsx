@@ -7,7 +7,7 @@ interface PhilosophySectionProps {
 }
 
 export const PhilosophySection: React.FC<PhilosophySectionProps> = ({
-  image = '/philosophy.jpg',
+  image = '/Philosophy.png',
   onUploadPhoto,
 }) => {
   const [imgError, setImgError] = useState(false);
