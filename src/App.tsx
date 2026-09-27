@@ -201,7 +201,6 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isShadeFinderOpen, setIsShadeFinderOpen] = useState(false);
-  const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [accountModalMode, setAccountModalMode] = useState<'signin' | 'signup' | 'forgot' | 'update_password'>('signin');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadModalTarget, setUploadModalTarget] = useState<'philosophy' | number | null>(null);
@@ -361,7 +360,8 @@ export default function App() {
       const hash = window.location.hash;
       if (hash.includes('type=recovery') || hash.includes('reset-password')) {
         setAccountModalMode('update_password');
-        setIsAccountOpen(true);
+        setCurrentRoute('account');
+        window.history.replaceState(null, '', `/account${hash}`);
         return;
       }
       const cat = parseCategoryFromHash(hash);
@@ -504,7 +504,7 @@ export default function App() {
         onOpenCart={() => setIsCartOpen(true)}
         onOpenAccount={() => {
           setAccountModalMode('signin');
-          setIsAccountOpen(true);
+          navigate('account');
         }}
         onOpenShadeFinder={() => setIsShadeFinderOpen(true)}
         onSelectCategory={handleSelectCategory}
@@ -548,39 +548,32 @@ export default function App() {
                 onAddToCart={handleAddToCart}
               />
             ) : (
-              <div className="max-w-md mx-auto text-center py-16 px-6 bg-white rounded-3xl border border-stone-200 shadow-md space-y-4">
-                <div className="w-14 h-14 rounded-full bg-[#FAF9F5] border border-stone-200 flex items-center justify-center mx-auto text-stone-800">
-                  <span className="font-serif text-2xl font-bold">B</span>
-                </div>
-                <h2 className="font-serif text-2xl font-semibold text-stone-900">
-                  Sign In to My Account
-                </h2>
-                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Sign in or create an account to view your order history, manage delivery addresses, and save favorites to your wishlist.
-                </p>
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAccountModalMode('signin');
-                      setIsAccountOpen(true);
-                    }}
-                    className="w-full sm:w-auto px-6 py-2.5 bg-[#1E1B18] text-white text-xs font-semibold rounded-xl hover:bg-stone-800 transition-colors cursor-pointer"
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAccountModalMode('signup');
-                      setIsAccountOpen(true);
-                    }}
-                    className="w-full sm:w-auto px-6 py-2.5 border border-stone-300 text-stone-800 text-xs font-semibold rounded-xl hover:bg-stone-50 transition-colors cursor-pointer"
-                  >
-                    Create Account
-                  </button>
-                </div>
-              </div>
+              <AccountModal
+                isOpen
+                inline
+                initialMode={accountModalMode}
+                onClose={() => {}}
+                currentUser={null}
+                onSignIn={async (email, password) => {
+                  const user = await signIn(email, password);
+                  setCurrentUser(user);
+                  showToast(`Welcome back, ${user.name}!`);
+                }}
+                onSignUp={async (name, email, password) => {
+                  const res = await signUp(name, email, password);
+                  if (!res.requiresEmailConfirmation) setCurrentUser({ email: res.email, name: res.name });
+                  return res;
+                }}
+                onResetPassword={resetPassword}
+                onUpdatePassword={async (password) => {
+                  const user = await updatePassword(password);
+                  setCurrentUser(user);
+                  showToast('Password updated successfully!');
+                  return user;
+                }}
+                onSignOut={() => { signOut(); setCurrentUser(null); }}
+                pastOrders={[]}
+              />
             )}
           </div>
         ) : (
@@ -674,42 +667,6 @@ export default function App() {
         onClose={() => setIsShadeFinderOpen(false)}
         onAddRoutineToCart={handleAddRoutineToCart}
         products={products}
-      />
-
-      <AccountModal
-        isOpen={isAccountOpen}
-        onClose={() => setIsAccountOpen(false)}
-        currentUser={currentUser}
-        initialMode={accountModalMode}
-        onSignIn={async (email, password) => {
-          const user = await signIn(email, password);
-          setCurrentUser(user);
-          showToast(`Welcome back, ${user.name}!`);
-        }}
-        onSignUp={async (name, email, password) => {
-          const res = await signUp(name, email, password);
-          if (res && !res.requiresEmailConfirmation) {
-            setCurrentUser({ email: res.email, name: res.name });
-          }
-          return res;
-        }}
-        onResetPassword={resetPassword}
-        onUpdatePassword={async (password) => {
-          const user = await updatePassword(password);
-          setCurrentUser(user);
-          showToast('Password updated successfully!');
-          return user;
-        }}
-        onSignOut={() => {
-          signOut();
-          setCurrentUser(null);
-          showToast('Signed out of account');
-        }}
-        pastOrders={pastOrders.filter(order => order.customer.email.toLowerCase() === currentUser?.email.toLowerCase())}
-        products={products}
-        wishlistIds={wishlistIds}
-        onToggleWishlist={toggleWishlist}
-        onAddToCart={handleAddToCart}
       />
 
       {/* Exact Product & Philosophy Photo Uploader */}
