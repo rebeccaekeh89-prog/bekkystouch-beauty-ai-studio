@@ -22,7 +22,7 @@ export const OurStoryPage: React.FC<OurStoryPageProps> = ({ onNavigateHome, onOp
       <img src="/Philosophy.png" alt="Bekky's Touch Beauty collection" className="w-full rounded-3xl object-cover" />
       <div><h2 className="font-serif text-3xl mb-5">Beauty, your way</h2>
         <p className="text-stone-600 leading-relaxed mb-5">From complexion products to colour and finishing touches, our collection is here to help you choose what feels right for you.</p>
-        <p className="text-stone-600 leading-relaxed mb-7">We are still writing our fuller story. Details about our founder and the beginnings of the business will be added once confirmed.</p>
+        <p className="text-stone-600 leading-relaxed mb-7">Choose the products and shades that fit your style. Browse the collection, explore the finishes, and build a beauty routine that feels like yours.</p>
         <div className="flex flex-wrap gap-3"><button onClick={onNavigateHome} className="px-6 py-3 bg-[#1E1B18] text-white rounded-xl flex items-center gap-2">Explore the collection <ArrowRight size={16}/></button><button onClick={onOpenShadeFinder} className="px-6 py-3 border border-stone-300 rounded-xl">Find your shade</button></div>
       </div>
     </section>
