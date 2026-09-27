@@ -45,24 +45,7 @@ const getInitialRoute = (): Route => {
 };
 
 export default function App() {
-  const [products, setProducts] = useState<Product[]>(() => {
-    try {
-      const saved = localStorage.getItem('bekkys_touch_custom_images');
-      if (saved) {
-        const overrides: Record<number, string> = JSON.parse(saved);
-        return PRODUCTS.map(p => {
-          const customUrl = overrides[p.id];
-          if (customUrl && !customUrl.startsWith('/products/')) {
-            return { ...p, image: customUrl };
-          }
-          return p;
-        });
-      }
-    } catch (e) {
-      console.warn('Failed to load custom image overrides', e);
-    }
-    return PRODUCTS;
-  });
+  const [products, setProducts] = useState<Product[]>(PRODUCTS);
 
   const [currentRoute, setCurrentRoute] = useState<Route>(getInitialRoute);
 
@@ -114,14 +97,7 @@ export default function App() {
       if (!active || !rows || rows.length === 0) return;
 
       setProducts(prev => {
-        const customOverridesStr = localStorage.getItem('bekkys_touch_custom_images');
-        const customMap: Record<number, string> = customOverridesStr ? JSON.parse(customOverridesStr) : {};
-
         return prev.map(p => {
-          if (customMap[p.id]) {
-            return { ...p, image: customMap[p.id] };
-          }
-
           const match = rows!.find(r => {
             if (Number(r.id) === p.id) return true;
             if (r.name && String(r.name).trim().toLowerCase() === p.name.trim().toLowerCase()) return true;
