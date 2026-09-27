@@ -25,10 +25,11 @@ import { Toast } from './components/Toast';
 import { OurStoryPage } from './components/OurStoryPage';
 import { ContactPage } from './components/ContactPage';
 import { ShippingReturnsPage } from './components/ShippingReturnsPage';
+import { GiftsSetsPage } from './components/GiftsSetsPage';
 import { MyAccountArea } from './components/MyAccountArea';
 import { restoreUser, signIn, signOut, signUp, resetPassword, updatePassword, supabaseUrl, supabasePublishableKey } from './auth';
 
-type Route = 'home' | 'our-story' | 'contact' | 'account' | 'shipping-returns' | 'shade-finder';
+type Route = 'home' | 'our-story' | 'contact' | 'account' | 'shipping-returns' | 'shade-finder' | 'gifts-sets';
 
 const getInitialRoute = (): Route => {
   if (typeof window === 'undefined') return 'home';
@@ -37,6 +38,7 @@ const getInitialRoute = (): Route => {
   if (path === '/contact' || path.startsWith('/contact/')) return 'contact';
   if (path === '/shipping-returns' || path.startsWith('/shipping-returns/')) return 'shipping-returns';
   if (path === '/shade-finder' || path.startsWith('/shade-finder/')) return 'shade-finder';
+  if (path === '/gifts-sets' || path.startsWith('/gifts-sets/')) return 'gifts-sets';
   if (path === '/account' || path.startsWith('/account/') || path === '/my-account') return 'account';
 
   const hash = window.location.hash.toLowerCase();
@@ -232,6 +234,10 @@ export default function App() {
       document.title = "Shade Finder | Bekky's Touch Beauty";
       const meta = document.querySelector('meta[name="description"]');
       if (meta) meta.setAttribute('content', "Explore shades and find a beauty routine that suits you at Bekky's Touch Beauty.");
+    } else if (route === 'gifts-sets') {
+      document.title = "Gifts & Sets | Bekky's Touch Beauty";
+      const meta = document.querySelector('meta[name="description"]');
+      if (meta) meta.setAttribute('content', "Shop Bekky's Touch Beauty gifts and sets featuring our makeup favourites.");
     } else if (route === 'account') {
       document.title = "My Account | Bekky's Touch Beauty";
       const meta = document.querySelector('meta[name="description"]');
@@ -258,6 +264,8 @@ export default function App() {
         document.title = "Shipping & Returns | Bekky's Touch Beauty";
       } else if (newRoute === 'shade-finder') {
         document.title = "Shade Finder | Bekky's Touch Beauty";
+      } else if (newRoute === 'gifts-sets') {
+        document.title = "Gifts & Sets | Bekky's Touch Beauty";
       } else if (newRoute === 'account') {
         document.title = "My Account | Bekky's Touch Beauty";
       } else {
@@ -459,6 +467,20 @@ export default function App() {
     showToast('Radiant Routine items added to bag with special 15% discount applied!');
   };
 
+  const handleAddGiftSetToCart = (setItems: { product: Product; shade: string }[]) => {
+    setCart((previous) => {
+      const next = [...previous];
+      for (const { product, shade } of setItems) {
+        const index = next.findIndex((item) => item.id === product.id && item.selectedShade === shade);
+        if (index >= 0) next[index] = { ...next[index], qty: next[index].qty + 1 };
+        else next.push({ ...product, selectedShade: shade, qty: 1 });
+      }
+      return next;
+    });
+    setIsCartOpen(true);
+    showToast('Gift set items added to your bag');
+  };
+
   const handleUpdateQty = (productId: number, delta: number, shade?: string) => {
     setCart((prev) =>
       prev
@@ -543,6 +565,15 @@ export default function App() {
             onClose={() => navigate('home')}
             onAddRoutineToCart={handleAddRoutineToCart}
             products={products}
+          />
+        ) : currentRoute === 'gifts-sets' ? (
+          <GiftsSetsPage
+            products={products}
+            onAddSetToCart={handleAddGiftSetToCart}
+            onShopAll={() => {
+              navigate('home');
+              window.setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 100);
+            }}
           />
         ) : currentRoute === 'account' ? (
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
