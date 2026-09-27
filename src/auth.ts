@@ -19,19 +19,52 @@ async function request(path: string, body: object, method: string = 'POST', head
   return data;
 }
 
+export interface SignUpResult {
+  email: string;
+  name: string;
+  requiresEmailConfirmation: boolean;
+}
+
+export function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const raw = localStorage.getItem(storageKey);
+  if (!raw) return null;
+  try {
+    const session = JSON.parse(raw);
+    return session.access_token || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function signIn(email: string, password: string) {
   const data = await request('token?grant_type=password', { email, password });
   localStorage.setItem(storageKey, JSON.stringify({ access_token: data.access_token, refresh_token: data.refresh_token }));
   return { email: data.user.email as string, name: data.user.user_metadata?.full_name || data.user.email };
 }
 
-export async function signUp(name: string, email: string, password: string) {
+export async function signUp(name: string, email: string, password: string): Promise<SignUpResult> {
   const data = await request('signup', { email, password, data: { full_name: name } });
   if (data.session?.access_token) {
     localStorage.setItem(storageKey, JSON.stringify({ access_token: data.session.access_token, refresh_token: data.session.refresh_token }));
-    return { email: data.user.email as string, name };
+    return { email: data.user.email as string, name, requiresEmailConfirmation: false };
   }
-  return null; // Email confirmation is required.
+  return { email: data.user?.email || email, name, requiresEmailConfirmation: true };
+}
+
+export async function updateUserProfile(name: string) {
+  if (!url || !key) {
+    throw new Error('Supabase authentication is not configured yet.');
+  }
+  const raw = localStorage.getItem(storageKey);
+  if (!raw) {
+    throw new Error('No active authentication session.');
+  }
+  const session = JSON.parse(raw);
+  const data = await request('user', { data: { full_name: name } }, 'PUT', {
+    Authorization: `Bearer ${session.access_token}`
+  });
+  return { email: data.email as string, name: data.user_metadata?.full_name || name };
 }
 
 export async function resetPassword(email: string) {
