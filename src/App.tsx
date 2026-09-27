@@ -25,7 +25,7 @@ import { Toast } from './components/Toast';
 import { OurStoryPage } from './components/OurStoryPage';
 import { ContactPage } from './components/ContactPage';
 import { MyAccountArea } from './components/MyAccountArea';
-import { restoreUser, signIn, signOut, signUp, resetPassword, updatePassword } from './auth';
+import { restoreUser, signIn, signOut, signUp, resetPassword, updatePassword, supabaseUrl, supabasePublishableKey } from './auth';
 
 type Route = 'home' | 'our-story' | 'contact' | 'account';
 
@@ -53,8 +53,7 @@ export default function App() {
     let active = true;
 
     async function loadCatalogue() {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const supabaseKey = supabasePublishableKey;
 
       interface DbProduct {
         id?: number | string;
