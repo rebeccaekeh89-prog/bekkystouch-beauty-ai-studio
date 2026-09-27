@@ -38,6 +38,21 @@ export default function App() {
     return PRODUCTS;
   });
 
+  useEffect(() => {
+    let active = true;
+    fetch('/api/products').then(async response => {
+      if (!response.ok) throw new Error('Catalogue unavailable');
+      return response.json() as Promise<Array<{ id: number; name: string; price: number }>>;
+    }).then(rows => {
+      if (!active) return;
+      const catalog = new Map(rows.map(row => [row.id, row]));
+      setProducts(previous => previous.filter(product => catalog.has(product.id)).map(product => ({
+        ...product, name: catalog.get(product.id)!.name, price: Number(catalog.get(product.id)!.price)
+      })));
+    }).catch(() => { /* Preview retains the AI Studio catalogue; checkout requires the backend. */ });
+    return () => { active = false; };
+  }, []);
+
   const [cart, setCart] = useState<CartItem[]>(() => {
     try {
       const saved = localStorage.getItem('bekkys_touch_cart');
