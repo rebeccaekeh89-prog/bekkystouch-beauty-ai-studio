@@ -24,21 +24,24 @@ import { ImageUploadModal } from './components/ImageUploadModal';
 import { Toast } from './components/Toast';
 import { OurStoryPage } from './components/OurStoryPage';
 import { ContactPage } from './components/ContactPage';
+import { ShippingReturnsPage } from './components/ShippingReturnsPage';
 import { MyAccountArea } from './components/MyAccountArea';
 import { restoreUser, signIn, signOut, signUp, resetPassword, updatePassword, supabaseUrl, supabasePublishableKey } from './auth';
 
-type Route = 'home' | 'our-story' | 'contact' | 'account';
+type Route = 'home' | 'our-story' | 'contact' | 'account' | 'shipping-returns';
 
 const getInitialRoute = (): Route => {
   if (typeof window === 'undefined') return 'home';
   const path = window.location.pathname.toLowerCase();
   if (path === '/our-story' || path.startsWith('/our-story/')) return 'our-story';
   if (path === '/contact' || path.startsWith('/contact/')) return 'contact';
+  if (path === '/shipping-returns' || path.startsWith('/shipping-returns/')) return 'shipping-returns';
   if (path === '/account' || path.startsWith('/account/') || path === '/my-account') return 'account';
 
   const hash = window.location.hash.toLowerCase();
   if (hash.includes('our-story')) return 'our-story';
   if (hash.includes('contact')) return 'contact';
+  if (hash.includes('shipping-returns')) return 'shipping-returns';
   if (hash.includes('account')) return 'account';
 
   return 'home';
@@ -222,6 +225,10 @@ export default function App() {
       document.title = "Contact Client Services | Bekky's Touch Beauty";
       const meta = document.querySelector('meta[name="description"]');
       if (meta) meta.setAttribute('content', "Contact Bekky's Touch Beauty by email for product questions and order support.");
+    } else if (route === 'shipping-returns') {
+      document.title = "Shipping & Returns | Bekky's Touch Beauty";
+      const meta = document.querySelector('meta[name="description"]');
+      if (meta) meta.setAttribute('content', "Shipping, order tracking and returns information for the Bekky's Touch Beauty demo store.");
     } else if (route === 'account') {
       document.title = "My Account | Bekky's Touch Beauty";
       const meta = document.querySelector('meta[name="description"]');
@@ -244,6 +251,8 @@ export default function App() {
         document.title = "Our Story & Philosophy | Bekky's Touch Luxury Beauty";
       } else if (newRoute === 'contact') {
         document.title = "Contact Client Services | Bekky's Touch Beauty";
+      } else if (newRoute === 'shipping-returns') {
+        document.title = "Shipping & Returns | Bekky's Touch Beauty";
       } else if (newRoute === 'account') {
         document.title = "My Account | Bekky's Touch Beauty";
       } else {
@@ -519,6 +528,8 @@ export default function App() {
             onNavigateHome={() => navigate('home')}
             onOpenShadeFinder={() => setIsShadeFinderOpen(true)}
           />
+        ) : currentRoute === 'shipping-returns' ? (
+          <ShippingReturnsPage onNavigateContact={() => navigate('contact')} onNavigateHome={() => navigate('home')} />
         ) : currentRoute === 'account' ? (
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
             {currentUser ? (
