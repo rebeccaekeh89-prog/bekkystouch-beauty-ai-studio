@@ -137,13 +137,13 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
                 </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={onOpenShadeFinder}
+                <a
+                  href="/shade-finder"
+                  onClick={(e) => { e.preventDefault(); onOpenShadeFinder(); }}
                   className="hover:text-white transition-colors text-left cursor-pointer block py-0.5"
                 >
                   Shade Finder Matcher
-                </button>
+                </a>
               </li>
               <li>
                 <a

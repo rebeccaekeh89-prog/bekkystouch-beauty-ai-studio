@@ -113,13 +113,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             Contact
           </a>
 
-          <button
-            onClick={onOpenShadeFinder}
-            className="hover:text-[#1E1B18] transition-colors py-1 flex items-center gap-1.5 text-stone-700 cursor-pointer"
+          <a
+            href="/shade-finder"
+            onClick={(e) => { e.preventDefault(); onOpenShadeFinder(); }}
+            className={`hover:text-[#1E1B18] transition-colors py-1 flex items-center gap-1.5 text-stone-700 cursor-pointer ${currentRoute === 'shade-finder' ? 'font-bold' : ''}`}
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-700" />
             <span>Shade Finder</span>
-          </button>
+          </a>
 
           <a
             href="#reviews"
@@ -279,8 +280,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             Contact Client Services
           </a>
 
-          <button
-            onClick={() => {
+          <a
+            href="/shade-finder"
+            onClick={(e) => {
+              e.preventDefault();
               setMobileMenuOpen(false);
               onOpenShadeFinder();
             }}
@@ -288,7 +291,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Sparkles className="w-4 h-4 text-amber-700" />
             <span>Find Your Shade</span>
-          </button>
+          </a>
 
           <a
             href="#reviews"

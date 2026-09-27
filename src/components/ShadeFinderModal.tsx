@@ -5,6 +5,7 @@ import { X, Sparkles, Check, ArrowRight, RefreshCw, Camera } from 'lucide-react'
 
 interface ShadeFinderModalProps {
   isOpen: boolean;
+  inline?: boolean;
   onClose: () => void;
   onAddRoutineToCart: (items: { product: Product; shade: string }[]) => void;
   products?: Product[];
@@ -70,6 +71,7 @@ function BundleItemCard({
 
 export const ShadeFinderModal: React.FC<ShadeFinderModalProps> = ({
   isOpen,
+  inline = false,
   onClose,
   onAddRoutineToCart,
   products,
@@ -124,18 +126,18 @@ export const ShadeFinderModal: React.FC<ShadeFinderModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
+    <div className={inline ? 'mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 sm:py-16' : 'fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto'}>
       <div
-        className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-stone-200 overflow-hidden my-8 animate-in zoom-in-95 duration-200 p-6 sm:p-8"
+        className={inline ? 'relative w-full bg-white rounded-2xl border border-stone-200 p-6 sm:p-10' : 'relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-stone-200 overflow-hidden my-8 animate-in zoom-in-95 duration-200 p-6 sm:p-8'}
         onClick={(e) => e.stopPropagation()}
       >
-        <button
+        {!inline && <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-800 rounded-full hover:bg-stone-100 transition-colors"
           aria-label="Close modal"
         >
           <X className="w-5 h-5" />
-        </button>
+        </button>}
 
         {step < 3 ? (
           <div>
@@ -183,7 +185,7 @@ export const ShadeFinderModal: React.FC<ShadeFinderModalProps> = ({
 
                 <div className="pt-4 border-t border-stone-200">
                   <span className="block text-xs font-semibold text-stone-800 mb-2">Your Undertone</span>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {[
                       { id: 'warm', title: 'Warm / Golden', desc: 'Golds, bronzes & honey tones glow best' },
                       { id: 'neutral', title: 'Neutral', desc: 'Balanced mix of warm & cool tones' },
