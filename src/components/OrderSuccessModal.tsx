@@ -25,10 +25,10 @@ export const OrderSuccessModal: React.FC<OrderSuccessModalProps> = ({ order, onC
             Thank you for choosing Bekky&apos;s Touch
           </span>
           <h2 className="font-serif text-3xl font-semibold text-stone-900">
-            Order Confirmed!
+            Order Received!
           </h2>
           <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto">
-            We&apos;ve sent an order confirmation and tracking details to <strong>{order.customer.email}</strong>.
+            Your order is recorded for offline payment. Keep your order number for reference. We have not sent an email to <strong>{order.customer.email}</strong>.
           </p>
         </div>
 
@@ -56,7 +56,7 @@ export const OrderSuccessModal: React.FC<OrderSuccessModalProps> = ({ order, onC
 
         {/* Items List */}
         <div className="py-4 space-y-3">
-          <h4 className="font-serif text-base font-semibold text-stone-900">Purchased Formulas</h4>
+          <h4 className="font-serif text-base font-semibold text-stone-900">Ordered products</h4>
           <div className="max-h-48 overflow-y-auto space-y-2 pr-1">
             {order.items.map((item, idx) => (
               <div key={idx} className="flex items-center justify-between text-xs py-1.5 border-b border-stone-100 last:border-none">
