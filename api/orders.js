@@ -38,15 +38,15 @@ export default async function handler(req, res) {
       }
 
       // 2. Query orders strictly filtered to this verified customer's email
-      const headers = { apikey: key, Authorization: `Bearer ${key}` };
+      const headers = { apikey: key };
       let ordersRes = await fetch(
-        `${url}/rest/v1/studio_orders?email=ilike.${encodeURIComponent(customerEmail)}&order=created_at.desc`,
+        `${url}/rest/v1/studio_orders?email=eq.${encodeURIComponent(customerEmail)}&order=created_at.desc`,
         { headers, cache: 'no-store' }
       );
 
       if (!ordersRes.ok) {
         ordersRes = await fetch(
-          `${url}/rest/v1/bt_orders?email=ilike.${encodeURIComponent(customerEmail)}&order=created_at.desc`,
+          `${url}/rest/v1/bt_orders?email=eq.${encodeURIComponent(customerEmail)}&order=created_at.desc`,
           { headers, cache: 'no-store' }
         );
       }
