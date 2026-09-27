@@ -32,6 +32,9 @@ export default async function handler(req, res) {
       }
 
       const authUser = await userRes.json();
+      if (!authUser.email_confirmed_at) {
+        return res.status(403).json({ error: 'Confirm your email before viewing order history.' });
+      }
       const customerEmail = authUser.email;
       if (!customerEmail) {
         return res.status(400).json({ error: 'User email not found.' });
