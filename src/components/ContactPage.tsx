@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabaseUrl, supabasePublishableKey } from '../auth';
-import { Mail, MapPin, Send, CheckCircle2, AlertCircle, Clock, Sparkles, HelpCircle, ArrowRight } from 'lucide-react';
+import { Send, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface ContactPageProps {
   onNavigateHome: () => void;
@@ -13,7 +13,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
 }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [orderNumber, setOrderNumber] = useState('');
   const [subject, setSubject] = useState('Order & Shipping Inquiry');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,7 +54,8 @@ export const ContactPage: React.FC<ContactPageProps> = ({
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim(),
-          phone: phone.trim() || null,
+          phone: null,
+          order_number: orderNumber.trim() || null,
           subject,
           message: message.trim()
         })
@@ -70,74 +71,16 @@ export const ContactPage: React.FC<ContactPageProps> = ({
 
   return (
     <div className="bg-[#FAF9F5] min-h-screen text-stone-800">
-      {/* Header */}
-      <section className="py-16 sm:py-20 border-b border-[#ECE7DE] bg-gradient-to-b from-[#F4EFE6] to-[#FAF9F5]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 border border-stone-200 text-amber-950 text-xs font-semibold uppercase tracking-widest shadow-2xs mb-5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-            <span>Client Services &amp; Concierge</span>
-          </div>
-
-          <h1 className="font-serif text-3xl sm:text-5xl font-semibold text-stone-900 tracking-tight">
-            We are here to assist you.
-          </h1>
-
-          <p className="mt-4 text-sm sm:text-base text-stone-600 max-w-xl mx-auto leading-relaxed font-light">
-            Have a question about an order or a product? Send us a message using the form below.
-          </p>
-        </div>
+      <section className="pt-16 sm:pt-20 pb-8 text-center px-4">
+        <h1 className="font-serif text-4xl sm:text-5xl font-semibold text-stone-900">Contact Us</h1>
+        <p className="mt-4 text-sm sm:text-base text-stone-600 max-w-xl mx-auto">
+          Have a question about an order or a product? Send us a message below.
+        </p>
       </section>
 
       {/* Main Content */}
-      <section className="py-14 sm:py-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
-          {/* Left Column: Direct Contact Information */}
-          <div className="lg:col-span-5 space-y-6">
-            <div>
-              <h2 className="font-serif text-2xl font-semibold text-stone-900">
-                Contact Details
-              </h2>
-              <p className="text-xs sm:text-sm text-stone-600 mt-1 leading-relaxed">
-                Connect directly with our client care team for boutique support and recommendations.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              {/* Email Card */}
-              <div className="p-5 bg-white rounded-2xl border border-stone-200/90 shadow-xs flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-amber-100/70 border border-amber-200/80 flex items-center justify-center text-amber-900 shrink-0">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-serif text-sm font-semibold text-stone-900">Private Enquiry Form</h3>
-                  <p className="text-xs text-stone-600 mt-1">Use the form on this page to send your enquiry without opening an email app.</p>
-                  <p className="text-[11px] text-stone-500 mt-1">
-                    Your message is stored privately for review.
-                  </p>
-                </div>
-              </div>
-
-              {/* Shade Match Callout */}
-              <div className="p-5 bg-[#FAF4EA] rounded-2xl border border-[#E9DFCE] text-amber-950 flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="font-serif text-sm font-semibold">Unsure of your shade?</h3>
-                  <p className="text-xs text-amber-900/80 mt-1">
-                    Take our 60-second Shade Finder Matcher to discover your complexion match.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={onOpenShadeFinder}
-                  className="px-3 py-1.5 bg-[#1E1B18] text-white text-xs font-semibold rounded-lg hover:bg-stone-800 transition-colors shrink-0 cursor-pointer"
-                >
-                  Find Shade
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Interactive Contact Form */}
-          <div className="lg:col-span-7">
+      <section className="pb-16 sm:pb-24 px-4 sm:px-6">
+        <div className="w-full max-w-3xl mx-auto">
             <div className="bg-white rounded-3xl border border-stone-200/90 shadow-md p-6 sm:p-10">
               {submitted ? (
                 <div className="text-center py-10 space-y-4">
@@ -159,7 +102,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                         setSubmitted(false);
                         setName('');
                         setEmail('');
-                        setPhone('');
+                        setOrderNumber('');
                         setMessage('');
                       }}
                       className="w-full sm:w-auto px-5 py-2.5 bg-[#1E1B18] text-white text-xs font-semibold rounded-xl hover:bg-stone-800 transition-colors"
@@ -216,21 +159,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-medium text-stone-700 mb-1">
-                        Contact Phone <span className="text-stone-400 font-normal">(Optional)</span>
-                      </label>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="Your phone number"
-                        className="w-full px-3.5 py-2.5 bg-[#FAF9F5] border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 transition-all"
-                      />
-                    </div>
-
-                    <div>
+                  <div>
                       <label className="block text-xs font-medium text-stone-700 mb-1">
                         Inquiry Topic
                       </label>
@@ -245,12 +174,16 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                         <option value="VIP Beauty Club & Perks">VIP Beauty Club &amp; Perks</option>
                         <option value="General Question">General Question</option>
                       </select>
-                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-stone-700 mb-1">Order Number <span className="text-stone-400 font-normal">(Optional)</span></label>
+                    <input type="text" maxLength={80} value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder="If your question is about an order" className="w-full px-3.5 py-2.5 bg-[#FAF9F5] border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 transition-all" />
                   </div>
 
                   <div>
                     <label className="block text-xs font-medium text-stone-700 mb-1">
-                      Your Message <span className="text-rose-500">*</span>
+                      Description <span className="text-rose-500">*</span>
                     </label>
                     <textarea
                       rows={5}
@@ -288,7 +221,6 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                 </form>
               )}
             </div>
-          </div>
         </div>
       </section>
     </div>
