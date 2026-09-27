@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CartItem, CustomerOrder } from '../types';
-import { X, Lock } from 'lucide-react';
+import { X, Lock, CreditCard } from 'lucide-react';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -28,6 +28,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     phone: ''
   });
 
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'apple' | 'klarna'>('card');
   const [error, setError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -66,7 +67,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
         items: [...items], subtotal: data.subtotal, discount: data.discount, shipping: 0, total: data.total,
         customer: { name: formData.name, email: formData.email, address: formData.address, city: formData.city, postcode: formData.postcode },
-        paymentMethod: 'Offline payment pending'
+        paymentMethod: `Offline payment pending (demo: ${paymentMethod})`
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Your order could not be placed.');
@@ -84,7 +85,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         {/* Header */}
         <div className="p-6 border-b border-stone-200 bg-[#FAF9F5] flex items-center justify-between">
           <div>
-            <span className="text-xs uppercase tracking-widest text-amber-900 font-semibold">Order details</span>
+            <span className="text-xs uppercase tracking-widest text-amber-900 font-semibold">Checkout</span>
             <h2 className="font-serif text-2xl font-semibold text-stone-900 mt-0.5">Bekky&apos;s Touch Boutique</h2>
           </div>
           <button
@@ -172,10 +173,72 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </div>
             </div>
 
-            <div className="pt-4 border-t border-stone-200 text-sm text-stone-700">
-              <h3 className="font-serif text-lg font-semibold text-stone-900 mb-2">2. Payment</h3>
-              <p>Place your order now. Payment will be arranged offline; no card details are collected on this website.</p>
+            {/* Payment Options */}
+            <div className="pt-4 border-t border-stone-200">
+              <h3 className="font-serif text-lg font-semibold text-stone-900 mb-3">2. Demo Payment Selection</h3>
+              <div className="grid grid-cols-3 gap-2 mb-3">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('card')}
+                  className={`p-3 rounded-lg border text-xs font-semibold flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
+                    paymentMethod === 'card'
+                      ? 'border-stone-900 bg-stone-900 text-white'
+                      : 'border-stone-200 hover:border-stone-400 text-stone-700 bg-white'
+                  }`}
+                >
+                  <CreditCard className="w-4 h-4" />
+                  <span>Card</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('apple')}
+                  className={`p-3 rounded-lg border text-xs font-semibold flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
+                    paymentMethod === 'apple'
+                      ? 'border-stone-900 bg-stone-900 text-white'
+                      : 'border-stone-200 hover:border-stone-400 text-stone-700 bg-white'
+                  }`}
+                >
+                  <span className="font-bold text-sm">Pay</span>
+                  <span>Apple Pay</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('klarna')}
+                  className={`p-3 rounded-lg border text-xs font-semibold flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
+                    paymentMethod === 'klarna'
+                      ? 'border-stone-900 bg-stone-900 text-white'
+                      : 'border-stone-200 hover:border-stone-400 text-stone-700 bg-white'
+                  }`}
+                >
+                  <span className="font-serif italic font-bold">Klarna.</span>
+                  <span>Pay in 3</span>
+                </button>
+              </div>
+
+              {paymentMethod === 'card' && (
+                <div className="space-y-2 bg-[#FAF9F5] p-3.5 rounded-xl border border-stone-200 text-xs text-stone-700">
+                  <p className="font-semibold">Demo card selection</p>
+                  <p>Card number •••• 4242 · Expires 08/28</p>
+                  <p>No card details are collected and no payment is taken.</p>
+                </div>
+              )}
+
+              {paymentMethod === 'apple' && (
+                <div className="p-4 bg-stone-100 rounded-xl text-center text-xs text-stone-600">
+                  Apple Pay preview only. No payment is taken.
+                </div>
+              )}
+
+              {paymentMethod === 'klarna' && (
+                <div className="p-4 bg-pink-50/70 border border-pink-200 rounded-xl text-xs text-stone-700 space-y-1">
+                  <p className="font-semibold text-pink-900">Klarna preview · 3 instalments of £{(total / 3).toFixed(2)}</p>
+                  <p className="text-[11px] text-stone-500">Preview only. No Klarna application or payment is started.</p>
+                </div>
+              )}
             </div>
+            <p className="text-xs text-stone-600 mt-3">Coursework demo: your selection is for display only. The order is recorded for offline payment.</p>
           </div>
 
           {/* Right Column: Order Summary */}
