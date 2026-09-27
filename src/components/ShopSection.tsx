@@ -14,6 +14,8 @@ interface ShopSectionProps {
   onOpenUploadModal?: () => void;
   selectedCategory?: string;
   onSelectCategory?: (category: string) => void;
+  wishlistIds?: number[];
+  onToggleWishlist?: (productId: number) => void;
 }
 
 export const ShopSection: React.FC<ShopSectionProps> = ({
@@ -26,6 +28,8 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
   onOpenUploadModal,
   selectedCategory: propCategory,
   onSelectCategory,
+  wishlistIds = [],
+  onToggleWishlist,
 }) => {
   const [internalCategory, setInternalCategory] = useState<string>('ALL');
   const currentCategory = propCategory !== undefined ? propCategory : internalCategory;
@@ -182,6 +186,8 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
               onSelectProduct={onSelectProduct}
               onAddToCart={onAddToCart}
               onUploadPhoto={onUploadPhoto}
+              isWishlisted={wishlistIds.includes(product.id)}
+              onToggleWishlist={onToggleWishlist}
             />
           ))}
         </div>
