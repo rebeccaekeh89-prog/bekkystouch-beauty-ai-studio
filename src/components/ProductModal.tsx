@@ -7,6 +7,8 @@ interface ProductModalProps {
   onClose: () => void;
   onAddToCart: (p: Product, shade: string, qty: number) => void;
   onUploadPhoto?: (p: Product) => void;
+  isWishlisted?: boolean;
+  onToggleWishlist?: (productId: number) => void;
 }
 
 export const ProductModal: React.FC<ProductModalProps> = ({
@@ -14,6 +16,8 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   onClose,
   onAddToCart,
   onUploadPhoto,
+  isWishlisted,
+  onToggleWishlist,
 }) => {
   const [selectedShade, setSelectedShade] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
@@ -297,6 +301,23 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                   </>
                 )}
               </button>
+
+              {/* Wishlist Button */}
+              {onToggleWishlist && (
+                <button
+                  type="button"
+                  onClick={() => onToggleWishlist(product.id)}
+                  className={`p-3 rounded-lg border transition-colors flex items-center justify-center cursor-pointer ${
+                    isWishlisted
+                      ? 'bg-rose-50 text-rose-600 border-rose-300'
+                      : 'bg-white text-stone-600 hover:text-rose-600 hover:bg-stone-50 border-stone-300'
+                  }`}
+                  aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+                  title={isWishlisted ? 'Saved in wishlist' : 'Save to wishlist'}
+                >
+                  <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
+                </button>
+              )}
             </div>
 
             <p className="text-[11px] text-stone-500 text-center flex items-center justify-center gap-1">
