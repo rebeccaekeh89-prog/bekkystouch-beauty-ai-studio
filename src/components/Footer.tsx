@@ -221,10 +221,14 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
               </li>
               <li>
                 <a
-                  href="mailto:rebeccaekeh89@gmail.com"
-                  className="text-stone-400 hover:text-white transition-colors block py-0.5 break-all"
+                  href="/contact"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate?.('contact');
+                  }}
+                  className="text-stone-400 hover:text-white transition-colors block py-0.5"
                 >
-                  rebeccaekeh89@gmail.com
+                  Contact form
                 </a>
               </li>
             </ul>
