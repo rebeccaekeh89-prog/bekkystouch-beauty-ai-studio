@@ -8,12 +8,20 @@ interface NewsletterProps {
 export const Newsletter: React.FC<NewsletterProps> = ({ onCopyPromo }) => {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    setSubmitted(true);
-    onCopyPromo('WELCOME10');
+    setBusy(true); setError('');
+    try {
+      const response = await fetch('/api/newsletter', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+      if (!response.ok) throw new Error('Could not subscribe. Please try again.');
+      setSubmitted(true);
+      onCopyPromo('WELCOME10');
+    } catch (err) { setError(err instanceof Error ? err.message : 'Could not subscribe.'); }
+    finally { setBusy(false); }
   };
 
   return (
@@ -35,6 +43,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({ onCopyPromo }) => {
           Be the first to hear about secret formula drops, masterclasses by Bekky, and exclusive member-only privileges.
         </p>
 
+        {error && <p role="alert" className="text-red-300 text-xs">{error}</p>}
         {!submitted ? (
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch justify-center gap-2 max-w-md mx-auto pt-2">
             <input
@@ -47,6 +56,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({ onCopyPromo }) => {
             />
             <button
               type="submit"
+              disabled={busy}
               className="px-6 py-3 bg-[#FAF9F5] text-[#1E1B18] hover:bg-white rounded-full text-xs font-semibold tracking-wide transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95"
             >
               <span>JOIN CLUB</span>
