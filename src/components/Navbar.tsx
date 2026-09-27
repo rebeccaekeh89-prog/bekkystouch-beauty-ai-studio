@@ -11,7 +11,7 @@ interface NavbarProps {
   searchQuery: string;
   onSearchChange: (q: string) => void;
   currentUser: { name: string; email: string } | null;
-  onNavigate?: (route: 'home' | 'our-story' | 'contact' | 'account') => void;
+  onNavigate?: (route: 'home' | 'our-story' | 'contact' | 'account' | 'gifts-sets') => void;
   currentRoute?: string;
 }
 
@@ -60,13 +60,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             e.preventDefault();
             onNavigate?.('home');
           }}
-          className="text-2xl sm:text-3xl font-serif tracking-tight text-[#1E1B18] hover:opacity-80 transition-opacity whitespace-nowrap cursor-pointer"
+          className="text-xl lg:text-3xl font-serif tracking-tight text-[#1E1B18] hover:opacity-80 transition-opacity whitespace-nowrap cursor-pointer"
         >
           Bekky&apos;s Touch
         </a>
 
         {/* Navigation Links */}
-        <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-stone-700 tracking-wide">
+        <nav className="hidden md:flex items-center gap-3 lg:gap-6 text-xs lg:text-sm font-medium text-stone-700 tracking-wide">
           <a
             href="#shop"
             onClick={(e) => {
@@ -85,6 +85,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             Shop Collection
+          </a>
+
+          <a
+            href="/gifts-sets"
+            onClick={(e) => { e.preventDefault(); onNavigate?.('gifts-sets'); }}
+            className={`hover:text-[#1E1B18] transition-colors py-1 cursor-pointer ${currentRoute === 'gifts-sets' ? 'text-[#1E1B18] font-bold' : ''}`}
+          >
+            Gifts &amp; Sets
           </a>
 
           <a
@@ -254,6 +262,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="block text-sm font-semibold text-stone-800 py-1"
           >
             Shop Collection
+          </a>
+
+          <a
+            href="/gifts-sets"
+            onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); onNavigate?.('gifts-sets'); }}
+            className="block text-sm font-medium text-stone-800 py-1"
+          >
+            Gifts &amp; Sets
           </a>
 
           <a
