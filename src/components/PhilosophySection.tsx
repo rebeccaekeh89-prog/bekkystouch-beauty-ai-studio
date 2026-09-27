@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sparkles, Feather, Droplets, Camera } from 'lucide-react';
 
 interface PhilosophySectionProps {
@@ -10,21 +10,33 @@ export const PhilosophySection: React.FC<PhilosophySectionProps> = ({
   image = '/philosophy.jpg',
   onUploadPhoto,
 }) => {
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [image]);
+
   return (
     <section className="py-16 sm:py-24 bg-[#F6F3EC] border-y border-[#E9E4D9]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           {/* Visual Showcase */}
           <div className="lg:col-span-6 relative group">
-            <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-lg border border-stone-200 bg-stone-300 relative">
-              <img
-                src={image}
-                alt="Bekky's Touch luxury beauty craftsmanship"
-                className="w-full h-full object-cover object-center"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
+            <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-lg border border-stone-200 bg-stone-300 relative flex items-center justify-center">
+              {!imgError ? (
+                <img
+                  src={image}
+                  alt="Bekky's Touch luxury beauty craftsmanship"
+                  className="w-full h-full object-cover object-center"
+                  referrerPolicy="no-referrer"
+                  onError={() => setImgError(true)}
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-[#F3EFE7]">
+                  <span className="font-serif text-3xl text-stone-400 font-light mb-2">Bekky&apos;s Touch</span>
+                  <span className="text-sm text-stone-600 font-medium">Our Philosophy &amp; Craft</span>
+                </div>
+              )}
 
               {onUploadPhoto && (
                 <button
