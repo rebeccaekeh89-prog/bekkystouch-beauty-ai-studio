@@ -5,8 +5,7 @@ export default async function handler(req, res) {
   if (!url || !key) return res.status(503).json({ error: 'Catalogue is not configured yet.' });
 
   const headers = {
-    apikey: key,
-    Authorization: `Bearer ${key}`
+    apikey: key
   };
 
   try {
