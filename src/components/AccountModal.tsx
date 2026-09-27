@@ -6,7 +6,9 @@ interface AccountModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser: { name: string; email: string } | null;
-  onSignIn: (name: string, email: string) => void;
+  onSignIn: (email: string, password: string) => Promise<void>;
+  onSignUp: (name: string, email: string, password: string) => Promise<boolean>;
+  onResetPassword: (email: string) => Promise<void>;
   onSignOut: () => void;
   pastOrders: CustomerOrder[];
 }
@@ -16,19 +18,34 @@ export const AccountModal: React.FC<AccountModalProps> = ({
   onClose,
   currentUser,
   onSignIn,
+  onSignUp,
+  onResetPassword,
   onSignOut,
   pastOrders
 }) => {
-  const [nameInput, setNameInput] = useState(currentUser?.name || 'Rebecca Ekeh');
-  const [emailInput, setEmailInput] = useState(currentUser?.email || 'rebeccaekeh89@gmail.com');
+  const [nameInput, setNameInput] = useState('');
+  const [emailInput, setEmailInput] = useState('');
+  const [password, setPassword] = useState('');
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [message, setMessage] = useState('');
+  const [busy, setBusy] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'orders'>('profile');
 
   if (!isOpen) return null;
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!emailInput.trim()) return;
-    onSignIn(nameInput.trim() || 'Valued Customer', emailInput.trim());
+    setBusy(true); setMessage('');
+    try {
+      if (mode === 'signup') {
+        const signedIn = await onSignUp(nameInput.trim(), emailInput.trim(), password);
+        setMessage(signedIn ? 'Account created.' : 'Check your email to confirm your account, then sign in.');
+      } else {
+        await onSignIn(emailInput.trim(), password);
+        setPassword('');
+      }
+    } catch (error) { setMessage(error instanceof Error ? error.message : 'Could not access your account.'); }
+    finally { setBusy(false); }
   };
 
   return (
@@ -101,7 +118,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                       <MapPin className="w-4 h-4 text-stone-400 shrink-0 mt-0.5" />
                       <div>
                         <span className="font-semibold text-stone-800 block">Default UK Address:</span>
-                        <span>14 Kensington Church Street, London W8 4EP</span>
+                        <span>No saved address yet.</span>
                       </div>
                     </div>
                   </div>
@@ -162,19 +179,20 @@ export const AccountModal: React.FC<AccountModalProps> = ({
         ) : (
           <form onSubmit={handleLogin} className="p-6 space-y-4">
             <p className="text-xs text-stone-600">
-              Sign in to view your orders, save shipping preferences, and enjoy VIP member perks.
+              Sign in to access your account. Orders placed on this browser appear in the order list.
             </p>
 
-            <div>
+            {mode === 'signup' && <div>
               <label className="block text-xs font-medium text-stone-700 mb-1">Your Name</label>
               <input
                 type="text"
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
                 className="w-full bg-[#FAF9F5] border border-stone-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-stone-800"
-                placeholder="e.g. Rebecca Ekeh"
+                required
+                placeholder="Your full name"
               />
-            </div>
+            </div>}
 
             <div>
               <label className="block text-xs font-medium text-stone-700 mb-1">Email Address</label>
@@ -188,12 +206,22 @@ export const AccountModal: React.FC<AccountModalProps> = ({
               />
             </div>
 
-            <button
-              type="submit"
-              className="w-full py-2.5 bg-stone-900 text-white rounded-lg text-xs font-semibold hover:bg-stone-800 transition-colors cursor-pointer mt-2"
+            <div><label className="block text-xs font-medium text-stone-700 mb-1">Password</label>
+              <input type="password" minLength={6} required value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-[#FAF9F5] border border-stone-300 rounded-lg px-3 py-2 text-xs" />
+            </div>
+            {message && <p role="status" className="text-xs text-stone-700">{message}</p>}
+            <button disabled={busy} type="submit" className="w-full py-2.5 bg-stone-900 text-white rounded-lg text-xs font-semibold hover:bg-stone-800 transition-colors cursor-pointer mt-2"
             >
-              Sign In to Bekky’s Touch
+              {busy ? 'Please wait...' : mode === 'signup' ? 'Create account' : 'Sign in'}
             </button>
+            <button type="button" className="text-xs underline" onClick={() => { setMode(mode === 'signup' ? 'signin' : 'signup'); setMessage(''); }}>
+              {mode === 'signup' ? 'Already registered? Sign in' : 'New here? Create an account'}
+            </button>
+            <button type="button" className="text-xs underline ml-4" onClick={async () => {
+              if (!emailInput.trim()) { setMessage('Enter your email address first.'); return; }
+              try { await onResetPassword(emailInput.trim()); setMessage('If this email has an account, a reset link will be sent.'); }
+              catch (error) { setMessage(error instanceof Error ? error.message : 'Could not send reset link.'); }
+            }}>Forgot password?</button>
           </form>
         )}
       </div>
