@@ -3,7 +3,7 @@ import React from 'react';
 interface FooterProps {
   onOpenShadeFinder: () => void;
   onSelectCategory?: (category: string) => void;
-  onNavigate?: (route: 'home' | 'our-story' | 'contact' | 'account' | 'shipping-returns') => void;
+  onNavigate?: (route: 'home' | 'our-story' | 'contact' | 'account' | 'shipping-returns' | 'gifts-sets') => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCategory, onNavigate }) => {
@@ -50,6 +50,12 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
               Collection
             </h4>
             <ul className="space-y-2">
+              <li>
+                <a href="/gifts-sets" onClick={(e) => { e.preventDefault(); onNavigate?.('gifts-sets'); }}
+                  className="hover:text-white transition-colors cursor-pointer block py-0.5">
+                  Gifts &amp; Sets
+                </a>
+              </li>
               <li>
                 <a
                   href="#shop?category=face"
