@@ -2,9 +2,10 @@ import React from 'react';
 
 interface FooterProps {
   onOpenShadeFinder: () => void;
+  onSelectCategory?: (category: string) => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCategory }) => {
   return (
     <footer className="bg-[#151412] text-stone-400 border-t border-stone-800 text-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -29,28 +30,63 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder }) => {
             </h4>
             <ul className="space-y-2">
               <li>
-                <a href="#shop" className="hover:text-white transition-colors">
+                <a
+                  href="#shop?category=face"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectCategory?.('FACE');
+                  }}
+                  className="hover:text-white transition-colors cursor-pointer block py-0.5"
+                >
                   Complexion &amp; Face
                 </a>
               </li>
               <li>
-                <a href="#shop" className="hover:text-white transition-colors">
+                <a
+                  href="#shop?category=lips"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectCategory?.('LIPS');
+                  }}
+                  className="hover:text-white transition-colors cursor-pointer block py-0.5"
+                >
                   Lip Care &amp; Gloss
                 </a>
               </li>
               <li>
-                <a href="#shop" className="hover:text-white transition-colors">
+                <a
+                  href="#shop?category=eyes"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectCategory?.('EYES');
+                  }}
+                  className="hover:text-white transition-colors cursor-pointer block py-0.5"
+                >
                   Eyes &amp; Lashes
                 </a>
               </li>
               <li>
-                <a href="#shop" className="hover:text-white transition-colors">
+                <a
+                  href="#shop?category=brows"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectCategory?.('BROWS');
+                  }}
+                  className="hover:text-white transition-colors cursor-pointer block py-0.5"
+                >
                   Brows &amp; Definition
                 </a>
               </li>
               <li>
-                <a href="#shop" className="hover:text-white transition-colors">
-                  Artisanal Brushes
+                <a
+                  href="#shop?category=tools"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectCategory?.('TOOLS');
+                  }}
+                  className="hover:text-white transition-colors cursor-pointer block py-0.5"
+                >
+                  Artisanal Brushes &amp; Tools
                 </a>
               </li>
             </ul>

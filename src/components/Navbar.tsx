@@ -7,6 +7,7 @@ interface NavbarProps {
   onOpenAccount: () => void;
   onOpenShadeFinder: () => void;
   onOpenUploadModal?: () => void;
+  onSelectCategory?: (category: string) => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
   currentUser: { name: string; email: string } | null;
@@ -18,6 +19,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAccount,
   onOpenShadeFinder,
   onOpenUploadModal,
+  onSelectCategory,
   searchQuery,
   onSearchChange,
   currentUser
@@ -59,6 +61,12 @@ export const Navbar: React.FC<NavbarProps> = ({
         <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-stone-700 tracking-wide">
           <a
             href="#shop"
+            onClick={(e) => {
+              if (onSelectCategory) {
+                e.preventDefault();
+                onSelectCategory('ALL');
+              }
+            }}
             className="hover:text-[#1E1B18] transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1.5px] after:bg-[#1E1B18] after:transition-all"
           >
             Shop Collection
@@ -173,13 +181,43 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-stone-200 bg-[#FAF9F5] px-6 py-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-          <a
-            href="#shop"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block text-sm font-medium text-stone-800 py-1.5"
-          >
-            Shop Collection
-          </a>
+          <div>
+            <a
+              href="#shop"
+              onClick={(e) => {
+                setMobileMenuOpen(false);
+                if (onSelectCategory) {
+                  e.preventDefault();
+                  onSelectCategory('ALL');
+                }
+              }}
+              className="block text-sm font-semibold text-stone-900 py-1"
+            >
+              Shop Collection
+            </a>
+            <div className="flex flex-wrap gap-1.5 pt-1.5 pb-2">
+              {[
+                { name: 'All', id: 'ALL' },
+                { name: 'Face', id: 'FACE' },
+                { name: 'Lips', id: 'LIPS' },
+                { name: 'Eyes', id: 'EYES' },
+                { name: 'Brows', id: 'BROWS' },
+                { name: 'Tools', id: 'TOOLS' }
+              ].map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onSelectCategory?.(c.id);
+                  }}
+                  className="text-xs px-2.5 py-1 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 cursor-pointer"
+                >
+                  {c.name}
+                </button>
+              ))}
+            </div>
+          </div>
           <button
             onClick={() => {
               setMobileMenuOpen(false);

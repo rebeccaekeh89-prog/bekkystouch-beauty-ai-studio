@@ -66,7 +66,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick, onOpenShadeFinder })
               <img
                 src="/hero.jpg"
                 alt="Bekky's Touch luxury beauty editorial"
-                referrerPolicy="no-referrer"
                 className="w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
                 onError={(e) => {
                   // Fallback styled visual container

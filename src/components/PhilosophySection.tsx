@@ -20,7 +20,6 @@ export const PhilosophySection: React.FC<PhilosophySectionProps> = ({
               <img
                 src={image}
                 alt="Bekky's Touch luxury beauty craftsmanship"
-                referrerPolicy="no-referrer"
                 className="w-full h-full object-cover object-center"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';

@@ -74,6 +74,7 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -124,6 +125,49 @@ export default function App() {
     setIsUploadModalOpen(true);
   };
 
+  const parseCategoryFromHash = (hash: string): string | null => {
+    if (!hash) return null;
+    const clean = hash.replace(/^#\/?/, '').toLowerCase();
+
+    if (clean.includes('category=')) {
+      const match = clean.match(/category=([a-z]+)/);
+      if (match && match[1]) {
+        const cat = match[1].toUpperCase();
+        if (['ALL', 'FACE', 'EYES', 'BROWS', 'LIPS', 'TOOLS'].includes(cat)) {
+          return cat;
+        }
+      }
+    }
+
+    for (const cat of ['FACE', 'EYES', 'BROWS', 'LIPS', 'TOOLS']) {
+      const lower = cat.toLowerCase();
+      if (clean === lower || clean === `shop-${lower}` || clean === `category-${lower}`) {
+        return cat;
+      }
+    }
+
+    return null;
+  };
+
+  const handleSelectCategory = (cat: string) => {
+    const upper = cat.toUpperCase();
+    setSelectedCategory(upper);
+    setSearchQuery('');
+
+    if (upper === 'ALL') {
+      window.history.pushState(null, '', '#shop');
+    } else {
+      window.history.pushState(null, '', `#shop?category=${upper.toLowerCase()}`);
+    }
+
+    setTimeout(() => {
+      const el = document.getElementById('shop');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 50);
+  };
+
   // Sync cart to localStorage
   useEffect(() => {
     try {
@@ -144,16 +188,29 @@ export default function App() {
 
   useEffect(() => { restoreUser().then(setCurrentUser); }, []);
 
-  // Handle direct hash navigation to #shop
+  // Handle direct hash navigation to #shop or #shop?category=...
   useEffect(() => {
-    if (window.location.hash === '#shop') {
-      setTimeout(() => {
-        const el = document.getElementById('shop');
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 300);
-    }
+    const handleHash = () => {
+      const hash = window.location.hash;
+      const cat = parseCategoryFromHash(hash);
+      if (cat) {
+        setSelectedCategory(cat);
+        setTimeout(() => {
+          const el = document.getElementById('shop');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 150);
+      } else if (hash === '#shop' || hash === '#/shop') {
+        setSelectedCategory('ALL');
+        setTimeout(() => {
+          const el = document.getElementById('shop');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 150);
+      }
+    };
+
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
   const showToast = (msg: string) => {
@@ -256,6 +313,7 @@ export default function App() {
           setUploadModalTarget(null);
           setIsUploadModalOpen(true);
         }}
+        onSelectCategory={handleSelectCategory}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         currentUser={currentUser}
@@ -284,6 +342,8 @@ export default function App() {
             setUploadModalTarget(null);
             setIsUploadModalOpen(true);
           }}
+          selectedCategory={selectedCategory}
+          onSelectCategory={handleSelectCategory}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
         />
@@ -310,7 +370,10 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <Footer onOpenShadeFinder={() => setIsShadeFinderOpen(true)} />
+      <Footer
+        onOpenShadeFinder={() => setIsShadeFinderOpen(true)}
+        onSelectCategory={handleSelectCategory}
+      />
 
       {/* Modals & Drawers */}
       <ProductModal
@@ -350,6 +413,8 @@ export default function App() {
         isOpen={isShadeFinderOpen}
         onClose={() => setIsShadeFinderOpen(false)}
         onAddRoutineToCart={handleAddRoutineToCart}
+        products={products}
+        onUploadPhoto={handleOpenUploadForProduct}
       />
 
       <AccountModal

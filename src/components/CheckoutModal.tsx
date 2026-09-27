@@ -254,7 +254,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     <img
                       src={item.image}
                       alt={item.name}
-                      referrerPolicy="no-referrer"
                       className="w-12 h-12 rounded object-cover border border-stone-200 bg-white shrink-0"
                     />
                     <div className="flex-1 min-w-0">

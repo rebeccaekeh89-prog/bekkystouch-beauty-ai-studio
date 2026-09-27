@@ -37,7 +37,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <img
             src={product.image}
             alt={product.name}
-            referrerPolicy="no-referrer"
             onError={() => setImgError(true)}
             className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
           />

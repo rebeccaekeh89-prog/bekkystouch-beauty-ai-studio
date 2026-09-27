@@ -129,7 +129,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     <img
                       src={item.image}
                       alt={item.name}
-                      referrerPolicy="no-referrer"
                       className="w-full h-full object-cover object-center"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';

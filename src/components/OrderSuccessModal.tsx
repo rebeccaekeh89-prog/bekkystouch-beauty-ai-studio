@@ -61,7 +61,7 @@ export const OrderSuccessModal: React.FC<OrderSuccessModalProps> = ({ order, onC
             {order.items.map((item, idx) => (
               <div key={idx} className="flex items-center justify-between text-xs py-1.5 border-b border-stone-100 last:border-none">
                 <div className="flex items-center gap-3">
-                  <img src={item.image} alt={item.name} referrerPolicy="no-referrer" className="w-10 h-10 rounded object-cover border border-stone-200" />
+                  <img src={item.image} alt={item.name} className="w-10 h-10 rounded object-cover border border-stone-200" />
                   <div>
                     <span className="font-medium text-stone-900 block">{item.name}</span>
                     <span className="text-stone-500 text-[11px]">

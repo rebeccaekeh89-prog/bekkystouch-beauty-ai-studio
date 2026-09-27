@@ -12,6 +12,8 @@ interface ShopSectionProps {
   onSearchChange: (q: string) => void;
   onUploadPhoto?: (p: Product) => void;
   onOpenUploadModal?: () => void;
+  selectedCategory?: string;
+  onSelectCategory?: (category: string) => void;
 }
 
 export const ShopSection: React.FC<ShopSectionProps> = ({
@@ -22,16 +24,28 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
   onSearchChange,
   onUploadPhoto,
   onOpenUploadModal,
+  selectedCategory: propCategory,
+  onSelectCategory,
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+  const [internalCategory, setInternalCategory] = useState<string>('ALL');
+  const currentCategory = propCategory !== undefined ? propCategory : internalCategory;
+
+  const handleCategoryChange = (cat: string) => {
+    if (onSelectCategory) {
+      onSelectCategory(cat);
+    } else {
+      setInternalCategory(cat);
+    }
+  };
+
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');
 
   const filteredProducts = useMemo(() => {
     let list = [...products];
 
     // Category filter
-    if (selectedCategory !== 'ALL') {
-      list = list.filter((p) => p.category.toUpperCase() === selectedCategory.toUpperCase());
+    if (currentCategory !== 'ALL') {
+      list = list.filter((p) => p.category.toUpperCase() === currentCategory.toUpperCase());
     }
 
     // Search query filter
@@ -55,7 +69,7 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
     }
 
     return list;
-  }, [products, selectedCategory, searchQuery, sortBy]);
+  }, [products, currentCategory, searchQuery, sortBy]);
 
   return (
     <section id="shop" className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -111,13 +125,13 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
             const count = cat === 'ALL'
               ? products.length
               : products.filter(p => p.category.toUpperCase() === cat).length;
-            const active = selectedCategory === cat;
+            const active = currentCategory === cat;
 
             return (
               <button
                 key={cat}
                 type="button"
-                onClick={() => setSelectedCategory(cat)}
+                onClick={() => handleCategoryChange(cat)}
                 className={`px-4 py-2 rounded-full text-xs font-medium tracking-wide transition-all whitespace-nowrap cursor-pointer ${
                   active
                     ? 'bg-[#1E1B18] text-[#FAF9F5] shadow-xs'
@@ -179,7 +193,7 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
           </p>
           <button
             onClick={() => {
-              setSelectedCategory('ALL');
+              handleCategoryChange('ALL');
               onSearchChange('');
             }}
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1E1B18] text-white rounded-full text-xs font-semibold hover:bg-stone-800 transition-colors cursor-pointer"

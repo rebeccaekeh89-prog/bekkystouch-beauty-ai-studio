@@ -1,18 +1,79 @@
 import React, { useState } from 'react';
 import { Product } from '../types';
 import { PRODUCTS } from '../data/products';
-import { X, Sparkles, Check, ArrowRight, RefreshCw } from 'lucide-react';
+import { X, Sparkles, Check, ArrowRight, RefreshCw, Camera } from 'lucide-react';
 
 interface ShadeFinderModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddRoutineToCart: (items: { product: Product; shade: string }[]) => void;
+  products?: Product[];
+  onUploadPhoto?: (product: Product) => void;
+}
+
+function BundleItemCard({
+  item,
+  onUploadPhoto,
+}: {
+  item: { product: Product; shade: string };
+  onUploadPhoto?: (product: Product) => void;
+}) {
+  const [imgError, setImgError] = useState(false);
+
+  return (
+    <div className="p-3 bg-[#FAF9F5] border border-stone-200 rounded-xl flex flex-col justify-between group relative">
+      <div className="aspect-square bg-white rounded-lg overflow-hidden mb-2 border border-stone-200 relative flex items-center justify-center">
+        {!imgError ? (
+          <img
+            src={item.product.image}
+            alt={item.product.name}
+            onError={() => setImgError(true)}
+            className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center bg-[#F3EFE7]">
+            <span className="font-serif text-sm font-semibold text-stone-700">{item.product.name}</span>
+            <span className="text-[10px] text-amber-900 mt-1 font-medium bg-amber-100/70 px-2 py-0.5 rounded">
+              {item.shade}
+            </span>
+          </div>
+        )}
+
+        {onUploadPhoto && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onUploadPhoto(item.product);
+            }}
+            title={`Upload photo for ${item.product.name}`}
+            className="absolute top-2 right-2 p-1.5 bg-white/95 hover:bg-white text-stone-700 rounded-md shadow-xs border border-stone-200 opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+          >
+            <Camera className="w-3.5 h-3.5 text-stone-700" />
+          </button>
+        )}
+      </div>
+
+      <div>
+        <span className="text-[10px] uppercase font-semibold text-stone-400 block">{item.product.category}</span>
+        <h4 className="font-serif text-sm font-semibold text-stone-900 leading-snug">{item.product.name}</h4>
+        <div className="mt-1 text-xs font-medium text-amber-950 bg-amber-100/60 px-2 py-0.5 rounded inline-block">
+          Shade: {item.shade}
+        </div>
+      </div>
+      <div className="mt-2 pt-2 border-t border-stone-200 text-xs font-semibold text-stone-900 tabular-nums">
+        £{item.product.price.toFixed(2)}
+      </div>
+    </div>
+  );
 }
 
 export const ShadeFinderModal: React.FC<ShadeFinderModalProps> = ({
   isOpen,
   onClose,
-  onAddRoutineToCart
+  onAddRoutineToCart,
+  products,
+  onUploadPhoto,
 }) => {
   const [step, setStep] = useState<number>(1);
   const [skinTone, setSkinTone] = useState<string>('deep');
@@ -22,10 +83,12 @@ export const ShadeFinderModal: React.FC<ShadeFinderModalProps> = ({
 
   if (!isOpen) return null;
 
+  const catalog = products && products.length > 0 ? products : PRODUCTS;
+
   // Compute recommendations
-  const foundationProduct = PRODUCTS.find((p) => p.name === 'Second Skin Foundation')!;
-  const blushProduct = PRODUCTS.find((p) => p.name === 'Cloud Blush')!;
-  const lipProduct = PRODUCTS.find((p) => p.name === 'Glass Lip Oil')!;
+  const foundationProduct = catalog.find((p) => p.name === 'Second Skin Foundation') || catalog[0];
+  const blushProduct = catalog.find((p) => p.name === 'Cloud Blush') || catalog[1];
+  const lipProduct = catalog.find((p) => p.name === 'Glass Lip Oil') || catalog[4];
 
   const getRecommendedFoundationShade = () => {
     if (skinTone === 'fair') return '01 Warm Ivory';
@@ -218,21 +281,11 @@ export const ShadeFinderModal: React.FC<ShadeFinderModalProps> = ({
             {/* Recommended Products Bundle */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {recommendedBundle.map((item, idx) => (
-                <div key={idx} className="p-3 bg-[#FAF9F5] border border-stone-200 rounded-xl flex flex-col justify-between">
-                  <div className="aspect-square bg-white rounded-lg overflow-hidden mb-2 border border-stone-200">
-                    <img src={item.product.image} alt={item.product.name} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-semibold text-stone-400 block">{item.product.category}</span>
-                    <h4 className="font-serif text-sm font-semibold text-stone-900 leading-snug">{item.product.name}</h4>
-                    <div className="mt-1 text-xs font-medium text-amber-950 bg-amber-100/60 px-2 py-0.5 rounded inline-block">
-                      Shade: {item.shade}
-                    </div>
-                  </div>
-                  <div className="mt-2 pt-2 border-t border-stone-200 text-xs font-semibold text-stone-900 tabular-nums">
-                    £{item.product.price.toFixed(2)}
-                  </div>
-                </div>
+                <BundleItemCard
+                  key={idx}
+                  item={item}
+                  onUploadPhoto={onUploadPhoto}
+                />
               ))}
             </div>
 
