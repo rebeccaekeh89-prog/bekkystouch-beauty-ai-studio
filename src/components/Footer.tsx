@@ -3,7 +3,7 @@ import React from 'react';
 interface FooterProps {
   onOpenShadeFinder: () => void;
   onSelectCategory?: (category: string) => void;
-  onNavigate?: (route: 'home' | 'our-story' | 'contact' | 'account') => void;
+  onNavigate?: (route: 'home' | 'our-story' | 'contact' | 'account' | 'shipping-returns') => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCategory, onNavigate }) => {
@@ -215,9 +215,10 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
                 </a>
               </li>
               <li>
-                <span className="text-stone-400 block py-0.5">
-                  Free UK Tracked Delivery (&gt;£50)
-                </span>
+                <a href="/shipping-returns" onClick={e => { e.preventDefault(); onNavigate?.('shipping-returns'); }}
+                  className="hover:text-white transition-colors cursor-pointer block py-0.5">
+                  Shipping &amp; Returns
+                </a>
               </li>
               <li>
                 <a
