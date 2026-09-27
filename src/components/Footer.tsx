@@ -3,16 +3,24 @@ import React from 'react';
 interface FooterProps {
   onOpenShadeFinder: () => void;
   onSelectCategory?: (category: string) => void;
+  onNavigate?: (route: 'home' | 'our-story' | 'contact' | 'account') => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCategory }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCategory, onNavigate }) => {
   return (
     <footer className="bg-[#151412] text-stone-400 border-t border-stone-800 text-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-4">
-            <a href="#" className="font-serif text-2xl font-bold text-white tracking-tight">
+            <a
+              href="/"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate?.('home');
+              }}
+              className="font-serif text-2xl font-bold text-white tracking-tight cursor-pointer"
+            >
               Bekky&apos;s Touch
             </a>
             <p className="text-stone-400 text-xs max-w-sm leading-relaxed">
@@ -21,6 +29,19 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
             <p className="text-[11px] text-stone-500 italic">
               London · United Kingdom
             </p>
+            <div>
+              <a
+                href="/our-story"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNavigate?.('our-story');
+                }}
+                className="inline-flex items-center gap-1.5 text-xs text-amber-300 hover:text-white transition-colors cursor-pointer"
+              >
+                <span>Read Our Full Story &amp; Craft</span>
+                <span>→</span>
+              </a>
+            </div>
           </div>
 
           {/* Column 1: Shop Collections */}
@@ -34,6 +55,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
                   href="#shop?category=face"
                   onClick={(e) => {
                     e.preventDefault();
+                    onNavigate?.('home');
                     onSelectCategory?.('FACE');
                   }}
                   className="hover:text-white transition-colors cursor-pointer block py-0.5"
@@ -46,6 +68,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
                   href="#shop?category=lips"
                   onClick={(e) => {
                     e.preventDefault();
+                    onNavigate?.('home');
                     onSelectCategory?.('LIPS');
                   }}
                   className="hover:text-white transition-colors cursor-pointer block py-0.5"
@@ -58,6 +81,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
                   href="#shop?category=eyes"
                   onClick={(e) => {
                     e.preventDefault();
+                    onNavigate?.('home');
                     onSelectCategory?.('EYES');
                   }}
                   className="hover:text-white transition-colors cursor-pointer block py-0.5"
@@ -70,6 +94,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
                   href="#shop?category=brows"
                   onClick={(e) => {
                     e.preventDefault();
+                    onNavigate?.('home');
                     onSelectCategory?.('BROWS');
                   }}
                   className="hover:text-white transition-colors cursor-pointer block py-0.5"
@@ -82,6 +107,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
                   href="#shop?category=tools"
                   onClick={(e) => {
                     e.preventDefault();
+                    onNavigate?.('home');
                     onSelectCategory?.('TOOLS');
                   }}
                   className="hover:text-white transition-colors cursor-pointer block py-0.5"
@@ -92,61 +118,113 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
             </ul>
           </div>
 
-          {/* Column 2: Experience */}
+          {/* Column 2: Experience & Heritage */}
           <div className="space-y-3">
             <h4 className="font-semibold text-white uppercase tracking-wider text-[11px]">
-              Experience
+              Heritage &amp; Story
             </h4>
             <ul className="space-y-2">
+              <li>
+                <a
+                  href="/our-story"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate?.('our-story');
+                  }}
+                  className="hover:text-white transition-colors cursor-pointer block py-0.5"
+                >
+                  Our Story &amp; Founder
+                </a>
+              </li>
               <li>
                 <button
                   type="button"
                   onClick={onOpenShadeFinder}
-                  className="hover:text-white transition-colors text-left cursor-pointer"
+                  className="hover:text-white transition-colors text-left cursor-pointer block py-0.5"
                 >
                   Shade Finder Matcher
                 </button>
               </li>
               <li>
-                <a href="#values" className="hover:text-white transition-colors">
+                <a
+                  href="#values"
+                  onClick={(e) => {
+                    if (window.location.pathname !== '/') {
+                      e.preventDefault();
+                      onNavigate?.('home');
+                      setTimeout(() => {
+                        const el = document.getElementById('values');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      }, 100);
+                    }
+                  }}
+                  className="hover:text-white transition-colors block py-0.5"
+                >
                   Clean Formula Standards
                 </a>
               </li>
               <li>
-                <a href="#reviews" className="hover:text-white transition-colors">
+                <a
+                  href="#reviews"
+                  onClick={(e) => {
+                    if (window.location.pathname !== '/') {
+                      e.preventDefault();
+                      onNavigate?.('home');
+                      setTimeout(() => {
+                        const el = document.getElementById('reviews');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      }, 100);
+                    }
+                  }}
+                  className="hover:text-white transition-colors block py-0.5"
+                >
                   Verified Reviews
                 </a>
-              </li>
-              <li>
-                <span className="text-stone-500">Beauty Masterclasses (Coming Soon)</span>
               </li>
             </ul>
           </div>
 
-          {/* Column 3: Customer Care */}
+          {/* Column 3: Customer Care & Contact */}
           <div className="space-y-3">
             <h4 className="font-semibold text-white uppercase tracking-wider text-[11px]">
-              Support &amp; Care
+              Support &amp; Contact
             </h4>
             <ul className="space-y-2">
               <li>
-                <span className="hover:text-white transition-colors cursor-pointer">
-                  Track Your Order
+                <a
+                  href="/contact"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate?.('contact');
+                  }}
+                  className="hover:text-white transition-colors cursor-pointer block py-0.5"
+                >
+                  Contact Client Services
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/account"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate?.('account');
+                  }}
+                  className="hover:text-white transition-colors cursor-pointer block py-0.5"
+                >
+                  My Account &amp; Orders
+                </a>
+              </li>
+              <li>
+                <span className="text-stone-400 block py-0.5">
+                  Free UK Tracked Delivery (&gt;£50)
                 </span>
               </li>
               <li>
-                <span className="hover:text-white transition-colors cursor-pointer">
-                  Shipping &amp; Free Returns
-                </span>
-              </li>
-              <li>
-                <span className="hover:text-white transition-colors cursor-pointer">
-                  Sustainability Policy
-                </span>
-              </li>
-              <li>
-                <a href="mailto:rebeccaekeh89@gmail.com" className="hover:text-white transition-colors">
-                  Contact Bekky&apos;s Team
+                <a
+                  href="mailto:rebeccaekeh89@gmail.com"
+                  className="text-stone-400 hover:text-white transition-colors block py-0.5 break-all"
+                >
+                  rebeccaekeh89@gmail.com
                 </a>
               </li>
             </ul>
@@ -161,7 +239,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
             <span>·</span>
             <span className="hover:text-stone-400 cursor-pointer">Terms of Service</span>
             <span>·</span>
-            <span className="hover:text-stone-400 cursor-pointer">Cookie Preferences</span>
+            <span className="hover:text-stone-400 cursor-pointer">London Boutique</span>
           </div>
         </div>
       </div>
