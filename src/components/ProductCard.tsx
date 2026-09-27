@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Product } from '../types';
-import { Eye, Plus, Check, Camera } from 'lucide-react';
+import { Eye, Plus, Check, Camera, Heart } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
   onSelectProduct: (p: Product) => void;
   onAddToCart: (p: Product, shade?: string) => void;
   onUploadPhoto?: (p: Product) => void;
+  isWishlisted?: boolean;
+  onToggleWishlist?: (productId: number) => void;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -14,6 +16,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onSelectProduct,
   onAddToCart,
   onUploadPhoto,
+  isWishlisted,
+  onToggleWishlist,
 }) => {
   const [added, setAdded] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -56,6 +60,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <span className="absolute top-3 left-3 text-[11px] font-semibold uppercase tracking-wider bg-white/90 backdrop-blur-xs text-stone-800 px-2.5 py-1 rounded-sm shadow-xs border border-stone-200">
             {product.badge}
           </span>
+        )}
+
+        {/* Wishlist toggle */}
+        {onToggleWishlist && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleWishlist(product.id);
+            }}
+            className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-xs transition-colors shadow-2xs z-10 cursor-pointer ${
+              isWishlisted
+                ? 'bg-rose-50 text-rose-600 border border-rose-200'
+                : 'bg-white/85 text-stone-500 hover:text-rose-600 hover:bg-white border border-stone-200/60'
+            }`}
+            aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            title={isWishlisted ? 'Saved in wishlist' : 'Add to wishlist'}
+          >
+            <Heart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-current' : ''}`} />
+          </button>
         )}
 
         {/* Hover Quick Actions Overlay */}
