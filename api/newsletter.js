@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   try {
     const result = await fetch(`${url}/rest/v1/newsletter_subscribers`, {
       method: 'POST',
-      headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      headers: { apikey: key, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
       body: JSON.stringify({ email, status: 'subscribed' })
     });
     if (!result.ok) return res.status(503).json({ error: 'Could not subscribe. Please try again.' });
