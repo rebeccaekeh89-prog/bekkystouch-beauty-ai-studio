@@ -179,7 +179,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* User Account Button */}
           <button
             onClick={() => {
-              if (onNavigate && currentUser) {
+              if (onNavigate) {
                 onNavigate('account');
               } else {
                 onOpenAccount();
@@ -312,7 +312,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
-                if (onNavigate && currentUser) {
+                if (onNavigate) {
                   onNavigate('account');
                 } else {
                   onOpenAccount();
