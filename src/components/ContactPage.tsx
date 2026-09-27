@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabaseUrl, supabasePublishableKey } from '../auth';
 import { Mail, MapPin, Send, CheckCircle2, AlertCircle, Clock, Sparkles, HelpCircle, ArrowRight } from 'lucide-react';
 
 interface ContactPageProps {
@@ -27,39 +28,45 @@ export const ContactPage: React.FC<ContactPageProps> = ({
     if (metaDescription) {
       metaDescription.setAttribute(
         'content',
-        "Contact Bekky's Touch Beauty by email for product questions and order support."
+        "Contact Bekky's Touch Beauty using our private enquiry form for product questions and order support."
       );
     }
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
 
-    if (!name.trim() || !email.trim() || !message.trim()) {
-      setErrorMessage('Please fill in your name, email address, and message.');
+    if (name.trim().length < 2 || !/^\S+@\S+\.\S+$/.test(email.trim()) || message.trim().length < 10) {
+      setErrorMessage('Please enter your name, a valid email address, and a message of at least 10 characters.');
       return;
     }
 
-    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
-      setErrorMessage('Please enter a valid email address.');
-      return;
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`${supabaseUrl}/rest/v1/contact_messages`, {
+        method: 'POST',
+        headers: {
+          apikey: supabasePublishableKey,
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal'
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim() || null,
+          subject,
+          message: message.trim()
+        })
+      });
+      if (!response.ok) throw new Error('We could not receive your message. Please try again.');
+      setSubmitted(true);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'We could not receive your message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
-
-    if (message.trim().length < 10) {
-      setErrorMessage('Please write a message with at least 10 characters so we can best assist you.');
-      return;
-    }
-
-    window.location.href = mailtoLink;
-    setSubmitted(true);
   };
-
-  const mailtoLink = `mailto:rebeccaekeh89@gmail.com?subject=${encodeURIComponent(
-    `[Bekky's Touch] ${subject} from ${name || 'Customer'}`
-  )}&body=${encodeURIComponent(
-    `Hello Bekky's Touch Team,\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone || 'Not provided'}\nInquiry Type: ${subject}\n\nMessage:\n${message}\n`
-  )}`;
 
   return (
     <div className="bg-[#FAF9F5] min-h-screen text-stone-800">
@@ -76,7 +83,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
           </h1>
 
           <p className="mt-4 text-sm sm:text-base text-stone-600 max-w-xl mx-auto leading-relaxed font-light">
-            Have a question about an order or a product? Get in touch by email.
+            Have a question about an order or a product? Send us a message using the form below.
           </p>
         </div>
       </section>
@@ -102,15 +109,10 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                   <Mail className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-serif text-sm font-semibold text-stone-900">Direct Email</h3>
-                  <a
-                    href="mailto:rebeccaekeh89@gmail.com"
-                    className="text-xs text-amber-900 hover:text-amber-950 underline font-medium block mt-0.5 break-all"
-                  >
-                    rebeccaekeh89@gmail.com
-                  </a>
+                  <h3 className="font-serif text-sm font-semibold text-stone-900">Private Enquiry Form</h3>
+                  <p className="text-xs text-stone-600 mt-1">Use the form on this page to send your enquiry without opening an email app.</p>
                   <p className="text-[11px] text-stone-500 mt-1">
-                    Please allow time for a reply.
+                    Your message is stored privately for review.
                   </p>
                 </div>
               </div>
@@ -143,20 +145,14 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
                   <h3 className="font-serif text-2xl font-semibold text-stone-900">
-                    Message Sent Successfully!
+                    Message Received
                   </h3>
                   <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto leading-relaxed">
-                    Your email app should open with your message. Please press Send there to contact us.
+                    Thank you for getting in touch. Your message has been received. Please allow time for a reply.
                   </p>
 
                   <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
-                    <a
-                      href={mailtoLink}
-                      className="w-full sm:w-auto px-5 py-2.5 bg-[#FAF9F5] border border-stone-300 hover:bg-stone-100 text-stone-800 text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
-                    >
-                      <Mail className="w-4 h-4 text-stone-600" />
-                      <span>Open in Mail Client</span>
-                    </a>
+
                     <button
                       type="button"
                       onClick={() => {
@@ -179,7 +175,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                       Send a Message
                     </h2>
                     <p className="text-xs text-stone-500 mt-1">
-                      Complete the fields below and our team will get back to you promptly.
+                      Complete the fields below to send your message. We will reply to the email address you provide.
                     </p>
                   </div>
 
@@ -268,7 +264,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
 
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
                     <p className="text-[11px] text-stone-400">
-                      Inquiries are directed to <span className="text-stone-600 font-medium">rebeccaekeh89@gmail.com</span>
+                      Your details are used to respond to this enquiry.
                     </p>
 
                     <button
