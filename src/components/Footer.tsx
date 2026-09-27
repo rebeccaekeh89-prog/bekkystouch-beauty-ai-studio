@@ -192,18 +192,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
             <ul className="space-y-2">
               <li>
                 <a
-                  href="/contact"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onNavigate?.('contact');
-                  }}
-                  className="hover:text-white transition-colors cursor-pointer block py-0.5"
-                >
-                  Contact Client Services
-                </a>
-              </li>
-              <li>
-                <a
                   href="/account"
                   onClick={(e) => {
                     e.preventDefault();
