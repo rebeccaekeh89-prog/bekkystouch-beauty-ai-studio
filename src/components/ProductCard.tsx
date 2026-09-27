@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product } from '../types';
 import { Eye, Plus, Check, Camera } from 'lucide-react';
 
@@ -17,6 +17,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const [added, setAdded] = useState(false);
   const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [product.image]);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();

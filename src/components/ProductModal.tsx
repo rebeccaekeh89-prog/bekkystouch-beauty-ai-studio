@@ -19,6 +19,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   const [quantity, setQuantity] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<'benefits' | 'ingredients' | 'howTo'>('benefits');
   const [added, setAdded] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     if (product) {
@@ -29,8 +30,13 @@ export const ProductModal: React.FC<ProductModalProps> = ({
       }
       setQuantity(1);
       setAdded(false);
+      setImgError(false);
     }
   }, [product]);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [product?.image]);
 
   if (!product) return null;
 
@@ -69,23 +75,19 @@ export const ProductModal: React.FC<ProductModalProps> = ({
           )}
 
           <div className="w-full max-w-sm aspect-square relative rounded-xl overflow-hidden shadow-sm bg-[#F5F2EB] flex items-center justify-center">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-full object-cover object-center"
-              onError={(e) => {
-                const target = e.currentTarget;
-                target.style.display = 'none';
-                if (target.parentElement) {
-                  const fallback = target.parentElement.querySelector('.img-modal-fallback') as HTMLElement;
-                  if (fallback) fallback.style.display = 'flex';
-                }
-              }}
-            />
-            <div className="img-modal-fallback hidden w-full h-full flex-col items-center justify-center p-6 text-center bg-[#F3EFE7]">
-              <span className="font-serif text-3xl text-stone-400 font-light mb-2">Bekky&apos;s Touch</span>
-              <span className="text-sm text-stone-600 font-medium">{product.name}</span>
-            </div>
+            {!imgError ? (
+              <img
+                src={product.image}
+                alt={product.name}
+                onError={() => setImgError(true)}
+                className="w-full h-full object-cover object-center"
+              />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-[#F3EFE7]">
+                <span className="font-serif text-3xl text-stone-400 font-light mb-2">Bekky&apos;s Touch</span>
+                <span className="text-sm text-stone-600 font-medium">{product.name}</span>
+              </div>
+            )}
           </div>
 
           {onUploadPhoto && (

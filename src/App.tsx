@@ -30,7 +30,14 @@ export default function App() {
       const saved = localStorage.getItem('bekkys_touch_custom_images');
       if (saved) {
         const overrides: Record<number, string> = JSON.parse(saved);
-        return PRODUCTS.map(p => overrides[p.id] ? { ...p, image: overrides[p.id] } : p);
+        return PRODUCTS.map(p => {
+          const customUrl = overrides[p.id];
+          // Do not let local relative paths override
+          if (customUrl && !customUrl.startsWith('/products/')) {
+            return { ...p, image: customUrl };
+          }
+          return p;
+        });
       }
     } catch (e) {
       console.warn('Failed to load custom image overrides', e);
@@ -40,16 +47,93 @@ export default function App() {
 
   useEffect(() => {
     let active = true;
-    fetch('/api/products').then(async response => {
-      if (!response.ok) throw new Error('Catalogue unavailable');
-      return response.json() as Promise<Array<{ id: number; name: string; price: number }>>;
-    }).then(rows => {
-      if (!active) return;
-      const catalog = new Map(rows.map(row => [row.id, row]));
-      setProducts(previous => previous.filter(product => catalog.has(product.id)).map(product => ({
-        ...product, name: catalog.get(product.id)!.name, price: Number(catalog.get(product.id)!.price)
-      })));
-    }).catch(() => { /* Preview retains the AI Studio catalogue; checkout requires the backend. */ });
+
+    async function loadCatalogue() {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+      interface DbProduct {
+        id?: number | string;
+        name?: string;
+        price?: number | string;
+        image?: string;
+        [key: string]: unknown;
+      }
+
+      let rows: DbProduct[] | null = null;
+
+      // 1. Fetch directly from Supabase bt_products table if client credentials are present
+      if (supabaseUrl && supabaseKey) {
+        try {
+          const directRes = await fetch(`${supabaseUrl}/rest/v1/bt_products?select=*`, {
+            headers: {
+              apikey: supabaseKey,
+              Authorization: `Bearer ${supabaseKey}`
+            },
+            cache: 'no-store'
+          });
+          if (directRes.ok) {
+            const data = await directRes.json();
+            if (Array.isArray(data) && data.length > 0) {
+              rows = data;
+            }
+          }
+        } catch (e) {
+          console.warn('Direct bt_products query error:', e);
+        }
+      }
+
+      // 2. Fallback to /api/products (which queries bt_products server-side)
+      if (!rows) {
+        try {
+          const apiRes = await fetch('/api/products');
+          if (apiRes.ok) {
+            const data = await apiRes.json();
+            if (Array.isArray(data) && data.length > 0) {
+              rows = data;
+            }
+          }
+        } catch (e) {
+          console.warn('/api/products fetch error:', e);
+        }
+      }
+
+      if (!active || !rows || rows.length === 0) return;
+
+      // 3. Update products with bt_products.image URL (including Cloud Blush and Brighten Concealer)
+      setProducts(prevProducts =>
+        prevProducts.map(product => {
+          const match = rows!.find(r =>
+            (r.id !== undefined && String(r.id) === String(product.id)) ||
+            (r.name && product.name && r.name.trim().toLowerCase() === product.name.trim().toLowerCase())
+          );
+
+          if (!match) return product;
+
+          const updated = { ...product };
+
+          // Crucial: assign the bt_products.image URL from Supabase
+          if (typeof match.image === 'string' && match.image.trim()) {
+            updated.image = match.image.trim();
+          }
+
+          if (match.name && typeof match.name === 'string') {
+            updated.name = match.name;
+          }
+
+          if (match.price !== undefined && match.price !== null) {
+            const num = Number(match.price);
+            if (Number.isFinite(num) && num >= 0) {
+              updated.price = num;
+            }
+          }
+
+          return updated;
+        })
+      );
+    }
+
+    loadCatalogue();
     return () => { active = false; };
   }, []);
 
@@ -386,7 +470,7 @@ export default function App() {
 
       {/* Modals & Drawers */}
       <ProductModal
-        product={selectedProduct}
+        product={selectedProduct ? products.find(p => p.id === selectedProduct.id) || selectedProduct : null}
         onClose={() => setSelectedProduct(null)}
         onAddToCart={handleAddToCart}
         onUploadPhoto={handleOpenUploadForProduct}

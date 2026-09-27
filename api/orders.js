@@ -25,7 +25,10 @@ export default async function handler(req, res) {
   }
   const headers = { apikey: key, 'Content-Type': 'application/json' };
   try {
-    const catalogResponse = await fetch(`${url}/rest/v1/studio_products?select=id,name,price&active=eq.true&id=in.(${ids.join(',')})`, { headers, cache: 'no-store' });
+    let catalogResponse = await fetch(`${url}/rest/v1/bt_products?select=id,name,price&id=in.(${ids.join(',')})`, { headers, cache: 'no-store' });
+    if (!catalogResponse.ok) {
+      catalogResponse = await fetch(`${url}/rest/v1/studio_products?select=id,name,price&active=eq.true&id=in.(${ids.join(',')})`, { headers, cache: 'no-store' });
+    }
     if (!catalogResponse.ok) throw new Error('Catalog unavailable');
     const products = new Map((await catalogResponse.json()).map(p => [p.id, p]));
     if (products.size !== ids.length) return res.status(400).json({ error: 'An item is no longer available.' });
@@ -43,11 +46,18 @@ export default async function handler(req, res) {
     if (promo && !Object.hasOwn(rates, promo)) return res.status(400).json({ error: 'Invalid promo code.' });
     const discount = Math.round(subtotal * (rates[promo] || 0) * 100) / 100;
     const total = Math.round((subtotal - discount) * 100) / 100;
-    const saved = await fetch(`${url}/rest/v1/studio_orders?select=id`, {
+    let saved = await fetch(`${url}/rest/v1/studio_orders?select=id`, {
       method: 'POST', headers: { ...headers, Prefer: 'return=representation' },
       body: JSON.stringify({ customer_name: name, email, phone, address, city, postcode, items: cleanItems,
         subtotal, discount, total, promo_code: promo || null, payment_method: 'offline', status: 'pending' })
     });
+    if (!saved.ok) {
+      saved = await fetch(`${url}/rest/v1/bt_orders?select=id`, {
+        method: 'POST', headers: { ...headers, Prefer: 'return=representation' },
+        body: JSON.stringify({ customer_name: name, email, phone, address, city, postcode, items: cleanItems,
+          subtotal, discount, total, promo_code: promo || null, payment_method: 'offline', status: 'pending' })
+      });
+    }
     if (!saved.ok) throw new Error('Order save failed');
     const [row] = await saved.json();
     return res.status(201).json({ orderId: row.id, subtotal, discount, total });
