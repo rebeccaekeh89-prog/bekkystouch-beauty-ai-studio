@@ -22,7 +22,7 @@ import { Footer } from './components/Footer';
 import { AccountModal } from './components/AccountModal';
 import { ImageUploadModal } from './components/ImageUploadModal';
 import { Toast } from './components/Toast';
-import { restoreUser, signIn, signOut, signUp, resetPassword } from './auth';
+import { restoreUser, signIn, signOut, signUp, resetPassword, updatePassword } from './auth';
 
 export default function App() {
   const [products, setProducts] = useState<Product[]>(() => {
@@ -80,6 +80,7 @@ export default function App() {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isShadeFinderOpen, setIsShadeFinderOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const [accountModalMode, setAccountModalMode] = useState<'signin' | 'signup' | 'forgot' | 'update_password'>('signin');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadModalTarget, setUploadModalTarget] = useState<'philosophy' | number | null>(null);
   const [philosophyImage, setPhilosophyImage] = useState<string>(() => {
@@ -188,10 +189,15 @@ export default function App() {
 
   useEffect(() => { restoreUser().then(setCurrentUser); }, []);
 
-  // Handle direct hash navigation to #shop or #shop?category=...
+  // Handle direct hash navigation to #shop, #shop?category=..., or recovery link
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash;
+      if (hash.includes('type=recovery') || hash.includes('reset-password')) {
+        setAccountModalMode('update_password');
+        setIsAccountOpen(true);
+        return;
+      }
       const cat = parseCategoryFromHash(hash);
       if (cat) {
         setSelectedCategory(cat);
@@ -307,7 +313,10 @@ export default function App() {
       <Navbar
         cartCount={totalCartCount}
         onOpenCart={() => setIsCartOpen(true)}
-        onOpenAccount={() => setIsAccountOpen(true)}
+        onOpenAccount={() => {
+          setAccountModalMode('signin');
+          setIsAccountOpen(true);
+        }}
         onOpenShadeFinder={() => setIsShadeFinderOpen(true)}
         onOpenUploadModal={() => {
           setUploadModalTarget(null);
@@ -421,6 +430,7 @@ export default function App() {
         isOpen={isAccountOpen}
         onClose={() => setIsAccountOpen(false)}
         currentUser={currentUser}
+        initialMode={accountModalMode}
         onSignIn={async (email, password) => {
           const user = await signIn(email, password);
           setCurrentUser(user);
@@ -432,6 +442,12 @@ export default function App() {
           return !!user;
         }}
         onResetPassword={resetPassword}
+        onUpdatePassword={async (password) => {
+          const user = await updatePassword(password);
+          setCurrentUser(user);
+          showToast('Password updated successfully!');
+          return user;
+        }}
         onSignOut={() => {
           signOut();
           setCurrentUser(null);

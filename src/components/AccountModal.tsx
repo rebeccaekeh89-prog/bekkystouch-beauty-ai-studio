@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CustomerOrder } from '../types';
-import { X, User, Package, MapPin, LogOut, Check } from 'lucide-react';
+import { X, User, Package, MapPin, LogOut, Check, ArrowLeft, Mail, Lock, KeyRound, AlertCircle } from 'lucide-react';
 
 interface AccountModalProps {
   isOpen: boolean;
@@ -9,8 +9,10 @@ interface AccountModalProps {
   onSignIn: (email: string, password: string) => Promise<void>;
   onSignUp: (name: string, email: string, password: string) => Promise<boolean>;
   onResetPassword: (email: string) => Promise<void>;
+  onUpdatePassword?: (password: string) => Promise<{ name: string; email: string }>;
   onSignOut: () => void;
   pastOrders: CustomerOrder[];
+  initialMode?: 'signin' | 'signup' | 'forgot' | 'update_password';
 }
 
 export const AccountModal: React.FC<AccountModalProps> = ({
@@ -20,32 +22,125 @@ export const AccountModal: React.FC<AccountModalProps> = ({
   onSignIn,
   onSignUp,
   onResetPassword,
+  onUpdatePassword,
   onSignOut,
-  pastOrders
+  pastOrders,
+  initialMode = 'signin'
 }) => {
   const [nameInput, setNameInput] = useState('');
   const [emailInput, setEmailInput] = useState('');
   const [password, setPassword] = useState('');
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
-  const [message, setMessage] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [mode, setMode] = useState<'signin' | 'signup' | 'forgot' | 'update_password'>(initialMode);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'orders'>('profile');
 
+  useEffect(() => {
+    if (isOpen) {
+      setErrorMessage('');
+      setSuccessMessage('');
+      if (initialMode) setMode(initialMode);
+    }
+  }, [isOpen, initialMode]);
+
   if (!isOpen) return null;
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setBusy(true); setMessage('');
+    if (!emailInput.trim() || !password) return;
+    setBusy(true);
+    setErrorMessage('');
+    setSuccessMessage('');
     try {
-      if (mode === 'signup') {
-        const signedIn = await onSignUp(nameInput.trim(), emailInput.trim(), password);
-        setMessage(signedIn ? 'Account created.' : 'Check your email to confirm your account, then sign in.');
-      } else {
-        await onSignIn(emailInput.trim(), password);
+      await onSignIn(emailInput.trim(), password);
+      setPassword('');
+      onClose();
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Could not access your account.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nameInput.trim() || !emailInput.trim() || !password) return;
+    setBusy(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+    try {
+      const signedIn = await onSignUp(nameInput.trim(), emailInput.trim(), password);
+      if (signedIn) {
+        setSuccessMessage('Account created and signed in successfully!');
         setPassword('');
+        setTimeout(() => onClose(), 1200);
+      } else {
+        setSuccessMessage('Account created! Please check your email inbox to confirm your account, then sign in.');
       }
-    } catch (error) { setMessage(error instanceof Error ? error.message : 'Could not access your account.'); }
-    finally { setBusy(false); }
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Could not create account.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = emailInput.trim();
+    if (!email) {
+      setErrorMessage('Please enter your email address.');
+      return;
+    }
+    setBusy(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+    try {
+      await onResetPassword(email);
+      setSuccessMessage(`We've sent a password reset link to ${email}. Please check your inbox and spam folder.`);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Could not send reset link. Please verify your email.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!password) {
+      setErrorMessage('Please enter a new password.');
+      return;
+    }
+    if (password.length < 6) {
+      setErrorMessage('Password must be at least 6 characters.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setErrorMessage('Passwords do not match.');
+      return;
+    }
+    if (!onUpdatePassword) {
+      setErrorMessage('Password update is not available.');
+      return;
+    }
+    setBusy(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+    try {
+      await onUpdatePassword(password);
+      setSuccessMessage('Your password has been successfully updated! You are now signed in.');
+      setPassword('');
+      setConfirmPassword('');
+      setTimeout(() => {
+        setMode('signin');
+        onClose();
+      }, 1500);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Could not update password.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -57,14 +152,31 @@ export const AccountModal: React.FC<AccountModalProps> = ({
         {/* Header */}
         <div className="p-5 border-b border-stone-200 bg-[#FAF9F5] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <User className="w-5 h-5 text-stone-800" />
+            {currentUser ? (
+              <User className="w-5 h-5 text-stone-800" />
+            ) : mode === 'forgot' ? (
+              <KeyRound className="w-5 h-5 text-stone-800" />
+            ) : mode === 'update_password' ? (
+              <Lock className="w-5 h-5 text-stone-800" />
+            ) : (
+              <User className="w-5 h-5 text-stone-800" />
+            )}
             <h2 className="font-serif text-xl font-semibold text-stone-900">
-              {currentUser ? 'My Account' : 'Sign In to Bekky’s Touch'}
+              {currentUser
+                ? 'My Account'
+                : mode === 'forgot'
+                ? 'Reset Your Password'
+                : mode === 'signup'
+                ? 'Create Your Account'
+                : mode === 'update_password'
+                ? 'Set New Password'
+                : 'Sign In to Bekky’s Touch'}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-stone-400 hover:text-stone-800 rounded-full hover:bg-stone-200 transition-colors"
+            className="p-1.5 text-stone-400 hover:text-stone-800 rounded-full hover:bg-stone-200 transition-colors cursor-pointer"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>
@@ -98,23 +210,24 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             </div>
 
             <div className="p-6">
-              {activeTab === 'profile' && (
-                <div className="space-y-5">
-                  <div className="flex items-center gap-4 p-4 bg-[#FAF9F5] rounded-xl border border-stone-200">
-                    <div className="w-12 h-12 rounded-full bg-stone-900 text-white font-serif text-xl flex items-center justify-center font-bold">
+              {activeTab === 'profile' ? (
+                <div className="space-y-4">
+                  <div className="p-4 bg-[#FAF9F5] rounded-xl border border-stone-200 flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-stone-900 text-white flex items-center justify-center font-serif text-lg font-bold">
                       {currentUser.name.charAt(0)}
                     </div>
                     <div>
-                      <h4 className="font-semibold text-stone-900">{currentUser.name}</h4>
+                      <h3 className="font-serif font-semibold text-stone-900">{currentUser.name}</h3>
                       <p className="text-xs text-stone-500">{currentUser.email}</p>
-                      <span className="inline-block mt-1 text-[10px] font-semibold bg-amber-100 text-amber-900 px-2 py-0.5 rounded">
-                        VIP Beauty Club Member
-                      </span>
                     </div>
                   </div>
 
                   <div className="space-y-2 text-xs text-stone-600">
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-center gap-2 p-3 bg-white rounded-lg border border-stone-200">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>Complimentary UK delivery active</span>
+                    </div>
+                    <div className="flex items-start gap-2 p-3 bg-white rounded-lg border border-stone-200">
                       <MapPin className="w-4 h-4 text-stone-400 shrink-0 mt-0.5" />
                       <div>
                         <span className="font-semibold text-stone-800 block">Default UK Address:</span>
@@ -123,50 +236,38 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-stone-200 flex justify-between items-center">
+                  <div className="pt-4 border-t border-stone-200 flex justify-end">
                     <button
+                      type="button"
                       onClick={onSignOut}
-                      className="text-xs text-red-600 hover:text-red-800 flex items-center gap-1 cursor-pointer font-medium"
+                      className="px-4 py-2 border border-stone-300 text-stone-700 hover:bg-stone-50 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
                     >
                       <LogOut className="w-3.5 h-3.5" />
                       <span>Sign Out</span>
                     </button>
-                    <button
-                      onClick={onClose}
-                      className="px-5 py-2 bg-stone-900 text-white rounded-lg text-xs font-semibold hover:bg-stone-800 transition-colors"
-                    >
-                      Done
-                    </button>
                   </div>
                 </div>
-              )}
-
-              {activeTab === 'orders' && (
-                <div className="space-y-4">
+              ) : (
+                <div>
                   {pastOrders.length === 0 ? (
-                    <div className="text-center py-8 text-stone-500 space-y-2">
-                      <Package className="w-8 h-8 mx-auto text-stone-300" />
-                      <p className="text-xs">No orders placed yet.</p>
-                      <button
-                        onClick={onClose}
-                        className="text-xs font-semibold text-stone-900 underline"
-                      >
-                        Start shopping
-                      </button>
+                    <div className="text-center py-8">
+                      <Package className="w-8 h-8 text-stone-300 mx-auto mb-2" />
+                      <p className="text-xs text-stone-500">No past orders yet on this browser.</p>
                     </div>
                   ) : (
                     <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
-                      {pastOrders.map((ord, idx) => (
-                        <div key={idx} className="p-3 border border-stone-200 rounded-xl text-xs space-y-2 bg-[#FAF9F5]">
-                          <div className="flex justify-between items-center font-medium">
-                            <span className="font-mono font-bold text-stone-900">{ord.orderId}</span>
-                            <span className="text-emerald-700 font-semibold">Confirmed</span>
+                      {pastOrders.map((order, idx) => (
+                        <div key={idx} className="p-3.5 bg-[#FAF9F5] border border-stone-200 rounded-xl space-y-2">
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="font-semibold text-stone-900">{order.orderId}</span>
+                            <span className="text-stone-500 text-[11px]">{order.date}</span>
                           </div>
-                          <div className="text-stone-500 text-[11px]">
-                            {ord.date} · {ord.items.length} items · Total: <strong>£{ord.total.toFixed(2)}</strong>
+                          <div className="text-[11px] text-stone-600">
+                            {order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}
                           </div>
-                          <div className="pt-1 text-[11px] text-stone-600 truncate">
-                            Items: {ord.items.map(i => i.name).join(', ')}
+                          <div className="flex justify-between items-center pt-2 border-t border-stone-200 text-xs font-semibold">
+                            <span className="text-stone-500 font-normal">Total Paid</span>
+                            <span className="tabular-nums">£{order.total.toFixed(2)}</span>
                           </div>
                         </div>
                       ))}
@@ -176,52 +277,258 @@ export const AccountModal: React.FC<AccountModalProps> = ({
               )}
             </div>
           </div>
-        ) : (
-          <form onSubmit={handleLogin} className="p-6 space-y-4">
-            <p className="text-xs text-stone-600">
-              Sign in to access your account. Orders placed on this browser appear in the order list.
+        ) : mode === 'forgot' ? (
+          /* FORGOT PASSWORD FORM */
+          <form onSubmit={handleForgotPassword} className="p-6 space-y-4">
+            <p className="text-xs text-stone-600 leading-relaxed">
+              Enter the email address associated with your Bekky’s Touch account. We will send you a secure link to reset your password.
             </p>
 
-            {mode === 'signup' && <div>
-              <label className="block text-xs font-medium text-stone-700 mb-1">Your Name</label>
-              <input
-                type="text"
-                value={nameInput}
-                onChange={(e) => setNameInput(e.target.value)}
-                className="w-full bg-[#FAF9F5] border border-stone-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-stone-800"
-                required
-                placeholder="Your full name"
-              />
-            </div>}
+            {errorMessage && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-xs text-red-800">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-xs space-y-1">
+                <p className="font-semibold flex items-center gap-1.5">
+                  <Check className="w-4 h-4 text-emerald-600" />
+                  Reset Link Sent
+                </p>
+                <p>{successMessage}</p>
+              </div>
+            )}
 
             <div>
               <label className="block text-xs font-medium text-stone-700 mb-1">Email Address</label>
-              <input
-                type="email"
-                required
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                className="w-full bg-[#FAF9F5] border border-stone-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-stone-800"
-                placeholder="name@example.com"
-              />
+              <div className="relative">
+                <input
+                  type="email"
+                  required
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  className="w-full bg-[#FAF9F5] border border-stone-300 rounded-lg px-3 py-2 pl-9 text-xs focus:outline-none focus:border-stone-800"
+                  placeholder="name@example.com"
+                  autoFocus
+                />
+                <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+              </div>
             </div>
 
-            <div><label className="block text-xs font-medium text-stone-700 mb-1">Password</label>
-              <input type="password" minLength={6} required value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-[#FAF9F5] border border-stone-300 rounded-lg px-3 py-2 text-xs" />
-            </div>
-            {message && <p role="status" className="text-xs text-stone-700">{message}</p>}
-            <button disabled={busy} type="submit" className="w-full py-2.5 bg-stone-900 text-white rounded-lg text-xs font-semibold hover:bg-stone-800 transition-colors cursor-pointer mt-2"
+            <button
+              type="submit"
+              disabled={busy}
+              className="w-full py-2.5 bg-stone-900 text-white rounded-lg text-xs font-semibold hover:bg-stone-800 transition-colors cursor-pointer mt-2 disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {busy ? 'Please wait...' : mode === 'signup' ? 'Create account' : 'Sign in'}
+              {busy ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Sending Reset Link...</span>
+                </>
+              ) : (
+                <span>Send Reset Link</span>
+              )}
             </button>
-            <button type="button" className="text-xs underline" onClick={() => { setMode(mode === 'signup' ? 'signin' : 'signup'); setMessage(''); }}>
-              {mode === 'signup' ? 'Already registered? Sign in' : 'New here? Create an account'}
+
+            <div className="pt-2 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('signin');
+                  setErrorMessage('');
+                  setSuccessMessage('');
+                }}
+                className="text-xs text-stone-600 hover:text-stone-900 font-medium inline-flex items-center gap-1.5 cursor-pointer"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Return to Sign In</span>
+              </button>
+            </div>
+          </form>
+        ) : mode === 'update_password' ? (
+          /* UPDATE PASSWORD FORM */
+          <form onSubmit={handleUpdatePassword} className="p-6 space-y-4">
+            <p className="text-xs text-stone-600 leading-relaxed">
+              Create a new secure password for your Bekky’s Touch account.
+            </p>
+
+            {errorMessage && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-xs text-red-800">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-xs text-emerald-800">
+                <Check className="w-4 h-4 shrink-0 text-emerald-600" />
+                <span>{successMessage}</span>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-medium text-stone-700 mb-1">New Password (min. 6 characters)</label>
+              <div className="relative">
+                <input
+                  type="password"
+                  minLength={6}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-[#FAF9F5] border border-stone-300 rounded-lg px-3 py-2 pl-9 text-xs focus:outline-none focus:border-stone-800"
+                  placeholder="••••••••"
+                  autoFocus
+                />
+                <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-stone-700 mb-1">Confirm New Password</label>
+              <div className="relative">
+                <input
+                  type="password"
+                  minLength={6}
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full bg-[#FAF9F5] border border-stone-300 rounded-lg px-3 py-2 pl-9 text-xs focus:outline-none focus:border-stone-800"
+                  placeholder="••••••••"
+                />
+                <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={busy}
+              className="w-full py-2.5 bg-stone-900 text-white rounded-lg text-xs font-semibold hover:bg-stone-800 transition-colors cursor-pointer mt-2 disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {busy ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Updating Password...</span>
+                </>
+              ) : (
+                <span>Update Password</span>
+              )}
             </button>
-            <button type="button" className="text-xs underline ml-4" onClick={async () => {
-              if (!emailInput.trim()) { setMessage('Enter your email address first.'); return; }
-              try { await onResetPassword(emailInput.trim()); setMessage('If this email has an account, a reset link will be sent.'); }
-              catch (error) { setMessage(error instanceof Error ? error.message : 'Could not send reset link.'); }
-            }}>Forgot password?</button>
+          </form>
+        ) : (
+          /* SIGN IN / SIGN UP FORM */
+          <form onSubmit={mode === 'signup' ? handleSignUp : handleSignIn} className="p-6 space-y-4">
+            <p className="text-xs text-stone-600">
+              {mode === 'signup'
+                ? 'Create an account to save delivery preferences, track orders, and receive member privileges.'
+                : 'Sign in to access your orders, saved addresses, and VIP beauty perks.'}
+            </p>
+
+            {errorMessage && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-xs text-red-800">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-xs text-emerald-800">
+                <Check className="w-4 h-4 shrink-0 text-emerald-600" />
+                <span>{successMessage}</span>
+              </div>
+            )}
+
+            {mode === 'signup' && (
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">Your Full Name</label>
+                <input
+                  type="text"
+                  required
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  className="w-full bg-[#FAF9F5] border border-stone-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-stone-800"
+                  placeholder="e.g. Rebecca Ekeh"
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-medium text-stone-700 mb-1">Email Address</label>
+              <div className="relative">
+                <input
+                  type="email"
+                  required
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  className="w-full bg-[#FAF9F5] border border-stone-300 rounded-lg px-3 py-2 pl-9 text-xs focus:outline-none focus:border-stone-800"
+                  placeholder="name@example.com"
+                />
+                <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-medium text-stone-700">Password</label>
+                {mode === 'signin' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('forgot');
+                      setErrorMessage('');
+                      setSuccessMessage('');
+                    }}
+                    className="text-[11px] text-stone-500 hover:text-stone-900 underline cursor-pointer"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
+              <div className="relative">
+                <input
+                  type="password"
+                  minLength={6}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-[#FAF9F5] border border-stone-300 rounded-lg px-3 py-2 pl-9 text-xs focus:outline-none focus:border-stone-800"
+                  placeholder="••••••••"
+                />
+                <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+              </div>
+            </div>
+
+            <button
+              disabled={busy}
+              type="submit"
+              className="w-full py-2.5 bg-stone-900 text-white rounded-lg text-xs font-semibold hover:bg-stone-800 transition-colors cursor-pointer mt-2 disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {busy ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Please wait...</span>
+                </>
+              ) : mode === 'signup' ? (
+                <span>Create Account</span>
+              ) : (
+                <span>Sign In</span>
+              )}
+            </button>
+
+            <div className="pt-2 text-center">
+              <button
+                type="button"
+                className="text-xs text-stone-600 hover:text-stone-900 font-medium cursor-pointer"
+                onClick={() => {
+                  setMode(mode === 'signup' ? 'signin' : 'signup');
+                  setErrorMessage('');
+                  setSuccessMessage('');
+                }}
+              >
+                {mode === 'signup' ? 'Already have an account? Sign in' : 'New here? Create an account'}
+              </button>
+            </div>
           </form>
         )}
       </div>
