@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingBag, Search, Sparkles, User, X, Menu, Camera } from 'lucide-react';
+import { ShoppingBag, Search, Sparkles, User, X, Menu, Camera, BookOpen, Mail } from 'lucide-react';
 
 interface NavbarProps {
   cartCount: number;
@@ -11,6 +11,8 @@ interface NavbarProps {
   searchQuery: string;
   onSearchChange: (q: string) => void;
   currentUser: { name: string; email: string } | null;
+  onNavigate?: (route: 'home' | 'our-story' | 'contact' | 'account') => void;
+  currentRoute?: string;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -22,7 +24,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectCategory,
   searchQuery,
   onSearchChange,
-  currentUser
+  currentUser,
+  onNavigate,
+  currentRoute = 'home'
 }) => {
   const [showSearch, setShowSearch] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -39,7 +43,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </p>
           <button
             onClick={() => setAnnouncementDismissed(true)}
-            className="text-stone-400 hover:text-white transition-colors p-1"
+            className="text-stone-400 hover:text-white transition-colors p-1 cursor-pointer"
             aria-label="Dismiss banner"
           >
             <X className="w-3.5 h-3.5" />
@@ -47,30 +51,68 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       )}
 
-      {/* Strict 3-Zone Top Bar */}
+      {/* Main Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
-        {/* Zone 1: Single Text Element Brand Wordmark */}
+        {/* Brand Wordmark */}
         <a
-          href="#"
-          className="text-2xl sm:text-3xl font-serif tracking-tight text-[#1E1B18] hover:opacity-80 transition-opacity whitespace-nowrap"
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            onNavigate?.('home');
+          }}
+          className="text-2xl sm:text-3xl font-serif tracking-tight text-[#1E1B18] hover:opacity-80 transition-opacity whitespace-nowrap cursor-pointer"
         >
           Bekky&apos;s Touch
         </a>
 
-        {/* Zone 2: 4-6 Clean Text Navigation Links */}
+        {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-stone-700 tracking-wide">
           <a
             href="#shop"
             onClick={(e) => {
+              e.preventDefault();
+              onNavigate?.('home');
               if (onSelectCategory) {
-                e.preventDefault();
                 onSelectCategory('ALL');
               }
+              setTimeout(() => {
+                const el = document.getElementById('shop');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }, 50);
             }}
-            className="hover:text-[#1E1B18] transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1.5px] after:bg-[#1E1B18] after:transition-all"
+            className={`hover:text-[#1E1B18] transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:bg-[#1E1B18] after:transition-all ${
+              currentRoute === 'home' ? 'text-[#1E1B18] font-bold after:w-full' : 'after:w-0 hover:after:w-full'
+            }`}
           >
             Shop Collection
           </a>
+
+          <a
+            href="/our-story"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate?.('our-story');
+            }}
+            className={`hover:text-[#1E1B18] transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:bg-[#1E1B18] after:transition-all cursor-pointer ${
+              currentRoute === 'our-story' ? 'text-[#1E1B18] font-bold after:w-full' : 'after:w-0 hover:after:w-full'
+            }`}
+          >
+            Our Story
+          </a>
+
+          <a
+            href="/contact"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate?.('contact');
+            }}
+            className={`hover:text-[#1E1B18] transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:bg-[#1E1B18] after:transition-all cursor-pointer ${
+              currentRoute === 'contact' ? 'text-[#1E1B18] font-bold after:w-full' : 'after:w-0 hover:after:w-full'
+            }`}
+          >
+            Contact
+          </a>
+
           <button
             onClick={onOpenShadeFinder}
             className="hover:text-[#1E1B18] transition-colors py-1 flex items-center gap-1.5 text-stone-700 cursor-pointer"
@@ -78,21 +120,26 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Sparkles className="w-3.5 h-3.5 text-amber-700" />
             <span>Shade Finder</span>
           </button>
-          <a
-            href="#values"
-            className="hover:text-[#1E1B18] transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1.5px] after:bg-[#1E1B18] after:transition-all"
-          >
-            Philosophy
-          </a>
+
           <a
             href="#reviews"
+            onClick={(e) => {
+              if (currentRoute !== 'home') {
+                e.preventDefault();
+                onNavigate?.('home');
+                setTimeout(() => {
+                  const el = document.getElementById('reviews');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              }
+            }}
             className="hover:text-[#1E1B18] transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1.5px] after:bg-[#1E1B18] after:transition-all"
           >
             Reviews
           </a>
         </nav>
 
-        {/* Zone 3: 1-2 Primary Actions & Controls */}
+        {/* Primary Actions & Controls */}
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Search Trigger */}
           <div className="relative">
@@ -112,7 +159,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     setShowSearch(false);
                     onSearchChange('');
                   }}
-                  className="text-stone-400 hover:text-stone-700 ml-1 p-0.5"
+                  className="text-stone-400 hover:text-stone-700 ml-1 p-0.5 cursor-pointer"
                   aria-label="Close search"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -121,7 +168,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             ) : (
               <button
                 onClick={() => setShowSearch(true)}
-                className="p-2 text-stone-700 hover:text-stone-900 rounded-full hover:bg-stone-100/80 transition-colors"
+                className="p-2 text-stone-700 hover:text-stone-900 rounded-full hover:bg-stone-100/80 transition-colors cursor-pointer"
                 aria-label="Open search"
               >
                 <Search className="w-5 h-5" />
@@ -131,17 +178,27 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* User Account Button */}
           <button
-            onClick={onOpenAccount}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-stone-700 hover:text-stone-900 rounded-full hover:bg-stone-100/80 transition-colors cursor-pointer"
+            onClick={() => {
+              if (onNavigate && currentUser) {
+                onNavigate('account');
+              } else {
+                onOpenAccount();
+              }
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-colors cursor-pointer ${
+              currentUser
+                ? 'bg-amber-950 text-amber-100 hover:bg-black shadow-2xs'
+                : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100/80'
+            }`}
             aria-label="User account"
           >
             <User className="w-4 h-4" />
             <span className="hidden sm:inline">
-              {currentUser ? currentUser.name.split(' ')[0] : 'Account'}
+              {currentUser ? `Hi, ${currentUser.name.split(' ')[0]}` : 'Account'}
             </span>
           </button>
 
-          {/* Upload Product Photos Button */}
+          {/* Optional Upload Photos button */}
           {onOpenUploadModal && (
             <button
               onClick={onOpenUploadModal}
@@ -170,7 +227,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Mobile menu hamburger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-stone-700 hover:text-stone-900"
+            className="md:hidden p-2 text-stone-700 hover:text-stone-900 cursor-pointer"
             aria-label="Toggle mobile menu"
           >
             <Menu className="w-5 h-5" />
@@ -178,70 +235,95 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* Mobile Navigation Drawer */}
+      {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-stone-200 bg-[#FAF9F5] px-6 py-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div>
-            <a
-              href="#shop"
-              onClick={(e) => {
-                setMobileMenuOpen(false);
-                if (onSelectCategory) {
-                  e.preventDefault();
-                  onSelectCategory('ALL');
-                }
-              }}
-              className="block text-sm font-semibold text-stone-900 py-1"
-            >
-              Shop Collection
-            </a>
-            <div className="flex flex-wrap gap-1.5 pt-1.5 pb-2">
-              {[
-                { name: 'All', id: 'ALL' },
-                { name: 'Face', id: 'FACE' },
-                { name: 'Lips', id: 'LIPS' },
-                { name: 'Eyes', id: 'EYES' },
-                { name: 'Brows', id: 'BROWS' },
-                { name: 'Tools', id: 'TOOLS' }
-              ].map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onSelectCategory?.(c.id);
-                  }}
-                  className="text-xs px-2.5 py-1 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 cursor-pointer"
-                >
-                  {c.name}
-                </button>
-              ))}
-            </div>
-          </div>
+        <div className="md:hidden bg-[#FAF9F5] border-t border-stone-200 px-5 py-4 space-y-3">
+          <a
+            href="#shop"
+            onClick={(e) => {
+              e.preventDefault();
+              setMobileMenuOpen(false);
+              onNavigate?.('home');
+              if (onSelectCategory) onSelectCategory('ALL');
+              setTimeout(() => {
+                const el = document.getElementById('shop');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }, 50);
+            }}
+            className="block text-sm font-semibold text-stone-800 py-1"
+          >
+            Shop Collection
+          </a>
+
+          <a
+            href="/our-story"
+            onClick={(e) => {
+              e.preventDefault();
+              setMobileMenuOpen(false);
+              onNavigate?.('our-story');
+            }}
+            className="block text-sm font-medium text-stone-800 py-1"
+          >
+            Our Story
+          </a>
+
+          <a
+            href="/contact"
+            onClick={(e) => {
+              e.preventDefault();
+              setMobileMenuOpen(false);
+              onNavigate?.('contact');
+            }}
+            className="block text-sm font-medium text-stone-800 py-1"
+          >
+            Contact Client Services
+          </a>
+
           <button
             onClick={() => {
               setMobileMenuOpen(false);
               onOpenShadeFinder();
             }}
-            className="flex items-center gap-2 text-sm font-medium text-stone-800 py-1.5 w-full text-left"
+            className="flex items-center gap-2 text-sm font-medium text-stone-800 py-1 w-full text-left"
           >
             <Sparkles className="w-4 h-4 text-amber-700" />
             <span>Find Your Shade</span>
           </button>
-          <a
-            href="#values"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block text-sm font-medium text-stone-800 py-1.5"
-          >
-            Our Philosophy
-          </a>
+
           <a
             href="#reviews"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block text-sm font-medium text-stone-800 py-1.5"
+            onClick={(e) => {
+              setMobileMenuOpen(false);
+              if (currentRoute !== 'home') {
+                e.preventDefault();
+                onNavigate?.('home');
+                setTimeout(() => {
+                  const el = document.getElementById('reviews');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              }
+            }}
+            className="block text-sm font-medium text-stone-800 py-1"
           >
             Customer Reviews
           </a>
+
+          <div className="pt-2 border-t border-stone-200">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (onNavigate && currentUser) {
+                  onNavigate('account');
+                } else {
+                  onOpenAccount();
+                }
+              }}
+              className="flex items-center gap-2 text-sm font-semibold text-amber-950 py-1.5 w-full text-left"
+            >
+              <User className="w-4 h-4 text-amber-800" />
+              <span>{currentUser ? `My Account (${currentUser.name})` : 'Sign In / Register'}</span>
+            </button>
+          </div>
         </div>
       )}
     </header>
