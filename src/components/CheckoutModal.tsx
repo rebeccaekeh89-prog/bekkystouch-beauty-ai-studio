@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CartItem, CustomerOrder } from '../types';
-import { X, CreditCard, Lock, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { X, Lock, CreditCard } from 'lucide-react';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -20,18 +20,16 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   currentUser
 }) => {
   const [formData, setFormData] = useState({
-    name: currentUser?.name || 'Rebecca Ekeh',
-    email: currentUser?.email || 'rebeccaekeh89@gmail.com',
-    address: '14 Kensington Church Street',
-    city: 'London',
-    postcode: 'W8 4EP',
-    phone: '+44 7700 900451'
+    name: currentUser?.name || '',
+    email: currentUser?.email || '',
+    address: '',
+    city: '',
+    postcode: '',
+    phone: ''
   });
 
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'apple' | 'klarna'>('card');
-  const [cardNumber, setCardNumber] = useState('•••• •••• •••• 4242');
-  const [cardExpiry, setCardExpiry] = useState('08/28');
-  const [cardCvc, setCardCvc] = useState('889');
+  const [error, setError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
   if (!isOpen) return null;
@@ -39,40 +37,43 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const subtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
   const discountPercent = appliedPromo === 'WELCOME10' ? 0.10 : appliedPromo === 'BEKKYTOUCH' ? 0.15 : appliedPromo === 'GLOW20' ? 0.20 : 0;
   const discount = subtotal * discountPercent;
-  const shipping = subtotal >= 50.0 || items.length === 0 ? 0 : 4.95;
+  const shipping = 0;
   const total = Math.max(0, subtotal - discount + shipping);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!items.length) return;
     setIsProcessing(true);
-
-    setTimeout(() => {
+    setError('');
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer_name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          address: formData.address.trim(),
+          city: formData.city.trim(),
+          postcode: formData.postcode.trim(),
+          items: items.map(item => ({ product_id: item.id, quantity: item.qty, shade: item.selectedShade })),
+          promo_code: appliedPromo || ''
+        })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.orderId) throw new Error(data.error || 'Your order could not be placed.');
+      onOrderSuccess({
+        orderId: data.orderId,
+        date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+        items: [...items], subtotal: data.subtotal, discount: data.discount, shipping: 0, total: data.total,
+        customer: { name: formData.name, email: formData.email, address: formData.address, city: formData.city, postcode: formData.postcode },
+        paymentMethod: `Offline payment pending (demo: ${paymentMethod})`
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Your order could not be placed.');
+    } finally {
       setIsProcessing(false);
-      const randomOrderId = `BT-${Math.floor(100000 + Math.random() * 900000)}`;
-      const order: CustomerOrder = {
-        orderId: randomOrderId,
-        date: new Date().toLocaleDateString('en-GB', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric'
-        }),
-        items: [...items],
-        subtotal,
-        discount,
-        shipping,
-        total,
-        customer: {
-          name: formData.name,
-          email: formData.email,
-          address: formData.address,
-          city: formData.city,
-          postcode: formData.postcode
-        },
-        paymentMethod: paymentMethod === 'card' ? 'Visa / Mastercard' : paymentMethod === 'apple' ? 'Apple Pay' : 'Klarna Pay in 3'
-      };
-
-      onOrderSuccess(order);
-    }, 1200);
+    }
   };
 
   return (
@@ -84,7 +85,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         {/* Header */}
         <div className="p-6 border-b border-stone-200 bg-[#FAF9F5] flex items-center justify-between">
           <div>
-            <span className="text-xs uppercase tracking-widest text-amber-900 font-semibold">Secure Checkout</span>
+            <span className="text-xs uppercase tracking-widest text-amber-900 font-semibold">Checkout</span>
             <h2 className="font-serif text-2xl font-semibold text-stone-900 mt-0.5">Bekky&apos;s Touch Boutique</h2>
           </div>
           <button
@@ -174,7 +175,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
             {/* Payment Options */}
             <div className="pt-4 border-t border-stone-200">
-              <h3 className="font-serif text-lg font-semibold text-stone-900 mb-3">2. Payment Method</h3>
+              <h3 className="font-serif text-lg font-semibold text-stone-900 mb-3">2. Demo Payment Selection</h3>
               <div className="grid grid-cols-3 gap-2 mb-3">
                 <button
                   type="button"
@@ -217,55 +218,27 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </div>
 
               {paymentMethod === 'card' && (
-                <div className="space-y-3 bg-[#FAF9F5] p-3.5 rounded-xl border border-stone-200">
-                  <div>
-                    <label className="block text-[11px] font-medium text-stone-600 mb-1">Card Number</label>
-                    <input
-                      type="text"
-                      required
-                      value={cardNumber}
-                      onChange={(e) => setCardNumber(e.target.value)}
-                      className="w-full bg-white border border-stone-300 rounded-lg px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-stone-800"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-medium text-stone-600 mb-1">Expires</label>
-                      <input
-                        type="text"
-                        required
-                        value={cardExpiry}
-                        onChange={(e) => setCardExpiry(e.target.value)}
-                        className="w-full bg-white border border-stone-300 rounded-lg px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-stone-800"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-medium text-stone-600 mb-1">CVC</label>
-                      <input
-                        type="text"
-                        required
-                        value={cardCvc}
-                        onChange={(e) => setCardCvc(e.target.value)}
-                        className="w-full bg-white border border-stone-300 rounded-lg px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-stone-800"
-                      />
-                    </div>
-                  </div>
+                <div className="space-y-2 bg-[#FAF9F5] p-3.5 rounded-xl border border-stone-200 text-xs text-stone-700">
+                  <p className="font-semibold">Demo card selection</p>
+                  <p>Card number •••• 4242 · Expires 08/28</p>
+                  <p>No card details are collected and no payment is taken.</p>
                 </div>
               )}
 
               {paymentMethod === 'apple' && (
                 <div className="p-4 bg-stone-100 rounded-xl text-center text-xs text-stone-600">
-                  Double-click side button to confirm payment with Touch ID / Face ID upon submission.
+                  Apple Pay preview only. No payment is taken.
                 </div>
               )}
 
               {paymentMethod === 'klarna' && (
                 <div className="p-4 bg-pink-50/70 border border-pink-200 rounded-xl text-xs text-stone-700 space-y-1">
-                  <p className="font-semibold text-pink-900">3 interest-free payments of £{(total / 3).toFixed(2)}</p>
-                  <p className="text-[11px] text-stone-500">No fees when you pay on time. Klarna terms apply.</p>
+                  <p className="font-semibold text-pink-900">Klarna preview · 3 instalments of £{(total / 3).toFixed(2)}</p>
+                  <p className="text-[11px] text-stone-500">Preview only. No Klarna application or payment is started.</p>
                 </div>
               )}
             </div>
+            <p className="text-xs text-stone-600 mt-3">Coursework demo: your selection is for display only. The order is recorded for offline payment.</p>
           </div>
 
           {/* Right Column: Order Summary */}
@@ -309,13 +282,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span>Tracked UK Shipping</span>
+                  <span>Delivery</span>
                   <span className="font-semibold text-stone-900 tabular-nums">
-                    {shipping === 0 ? 'FREE' : `£${shipping.toFixed(2)}`}
+                    FREE
                   </span>
                 </div>
                 <div className="flex justify-between text-base font-bold text-stone-900 pt-2 border-t border-stone-200">
-                  <span>Total Due</span>
+                  <span>Order total</span>
                   <span className="tabular-nums">£{total.toFixed(2)}</span>
                 </div>
               </div>
@@ -328,19 +301,16 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 className="w-full py-3.5 px-4 bg-[#1E1B18] text-[#FAF9F5] rounded-xl font-medium text-xs sm:text-sm tracking-wide hover:bg-stone-800 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {isProcessing ? (
-                  <span>Securing Order...</span>
+                  <span>Placing order...</span>
                 ) : (
                   <>
                     <Lock className="w-4 h-4" />
-                    <span>Pay £{total.toFixed(2)} Now</span>
+                    <span>Place order · £{total.toFixed(2)}</span>
                   </>
                 )}
               </button>
 
-              <div className="flex items-center justify-center gap-1.5 text-[11px] text-stone-500">
-                <ShieldCheck className="w-3.5 h-3.5 text-stone-400" />
-                <span>Authorized Merchant · Bekky&apos;s Touch UK</span>
-              </div>
+              {error && <p role="alert" className="text-xs text-red-700">{error}</p>}
             </div>
           </div>
         </form>

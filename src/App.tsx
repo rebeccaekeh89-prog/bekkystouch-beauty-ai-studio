@@ -22,6 +22,7 @@ import { Footer } from './components/Footer';
 import { AccountModal } from './components/AccountModal';
 import { ImageUploadModal } from './components/ImageUploadModal';
 import { Toast } from './components/Toast';
+import { restoreUser, signIn, signOut, signUp, resetPassword } from './auth';
 
 export default function App() {
   const [products, setProducts] = useState<Product[]>(() => {
@@ -36,6 +37,21 @@ export default function App() {
     }
     return PRODUCTS;
   });
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/products').then(async response => {
+      if (!response.ok) throw new Error('Catalogue unavailable');
+      return response.json() as Promise<Array<{ id: number; name: string; price: number }>>;
+    }).then(rows => {
+      if (!active) return;
+      const catalog = new Map(rows.map(row => [row.id, row]));
+      setProducts(previous => previous.filter(product => catalog.has(product.id)).map(product => ({
+        ...product, name: catalog.get(product.id)!.name, price: Number(catalog.get(product.id)!.price)
+      })));
+    }).catch(() => { /* Preview retains the AI Studio catalogue; checkout requires the backend. */ });
+    return () => { active = false; };
+  }, []);
 
   const [cart, setCart] = useState<CartItem[]>(() => {
     try {
@@ -55,14 +71,7 @@ export default function App() {
     }
   });
 
-  const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(() => {
-    try {
-      const saved = localStorage.getItem('bekkys_touch_user');
-      return saved ? JSON.parse(saved) : { name: 'Rebecca Ekeh', email: 'rebeccaekeh89@gmail.com' };
-    } catch {
-      return { name: 'Rebecca Ekeh', email: 'rebeccaekeh89@gmail.com' };
-    }
-  });
+  const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -80,7 +89,7 @@ export default function App() {
     }
   });
   const [completedOrder, setCompletedOrder] = useState<CustomerOrder | null>(null);
-  const [appliedPromo, setAppliedPromo] = useState<string | null>('WELCOME10');
+  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleUpdateProductImage = async (productId: number, newImageUrl: string) => {
@@ -133,18 +142,7 @@ export default function App() {
     }
   }, [pastOrders]);
 
-  // Sync user to localStorage
-  useEffect(() => {
-    try {
-      if (currentUser) {
-        localStorage.setItem('bekkys_touch_user', JSON.stringify(currentUser));
-      } else {
-        localStorage.removeItem('bekkys_touch_user');
-      }
-    } catch (e) {
-      console.warn('Failed to save user to localStorage', e);
-    }
-  }, [currentUser]);
+  useEffect(() => { restoreUser().then(setCurrentUser); }, []);
 
   // Handle direct hash navigation to #shop
   useEffect(() => {
@@ -358,15 +356,23 @@ export default function App() {
         isOpen={isAccountOpen}
         onClose={() => setIsAccountOpen(false)}
         currentUser={currentUser}
-        onSignIn={(name, email) => {
-          setCurrentUser({ name, email });
-          showToast(`Welcome back, ${name}!`);
+        onSignIn={async (email, password) => {
+          const user = await signIn(email, password);
+          setCurrentUser(user);
+          showToast(`Welcome back, ${user.name}!`);
         }}
+        onSignUp={async (name, email, password) => {
+          const user = await signUp(name, email, password);
+          if (user) setCurrentUser(user);
+          return !!user;
+        }}
+        onResetPassword={resetPassword}
         onSignOut={() => {
+          signOut();
           setCurrentUser(null);
           showToast('Signed out of account');
         }}
-        pastOrders={pastOrders}
+        pastOrders={pastOrders.filter(order => order.customer.email.toLowerCase() === currentUser?.email.toLowerCase())}
       />
 
       {/* Exact Product & Philosophy Photo Uploader */}

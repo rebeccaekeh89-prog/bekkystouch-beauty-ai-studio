@@ -33,7 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="bg-[#1E1B18] text-[#FAF9F5] text-xs py-2 px-4 flex items-center justify-between transition-all">
           <div className="w-6" />
           <p className="text-center font-medium tracking-wide">
-            ✦ Complimentary UK Standard Delivery on all orders over £50 · Use code <span className="underline decoration-amber-400 font-semibold">WELCOME10</span> for 10% off
+            ✦ Free UK delivery on every order · Use code <span className="underline decoration-amber-400 font-semibold">WELCOME10</span> for 10% off
           </p>
           <button
             onClick={() => setAnnouncementDismissed(true)}
