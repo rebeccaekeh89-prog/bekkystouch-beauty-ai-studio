@@ -28,7 +28,7 @@ import { ShippingReturnsPage } from './components/ShippingReturnsPage';
 import { MyAccountArea } from './components/MyAccountArea';
 import { restoreUser, signIn, signOut, signUp, resetPassword, updatePassword, supabaseUrl, supabasePublishableKey } from './auth';
 
-type Route = 'home' | 'our-story' | 'contact' | 'account' | 'shipping-returns';
+type Route = 'home' | 'our-story' | 'contact' | 'account' | 'shipping-returns' | 'shade-finder';
 
 const getInitialRoute = (): Route => {
   if (typeof window === 'undefined') return 'home';
@@ -36,6 +36,7 @@ const getInitialRoute = (): Route => {
   if (path === '/our-story' || path.startsWith('/our-story/')) return 'our-story';
   if (path === '/contact' || path.startsWith('/contact/')) return 'contact';
   if (path === '/shipping-returns' || path.startsWith('/shipping-returns/')) return 'shipping-returns';
+  if (path === '/shade-finder' || path.startsWith('/shade-finder/')) return 'shade-finder';
   if (path === '/account' || path.startsWith('/account/') || path === '/my-account') return 'account';
 
   const hash = window.location.hash.toLowerCase();
@@ -200,7 +201,6 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [isShadeFinderOpen, setIsShadeFinderOpen] = useState(false);
   const [accountModalMode, setAccountModalMode] = useState<'signin' | 'signup' | 'forgot' | 'update_password'>('signin');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadModalTarget, setUploadModalTarget] = useState<'philosophy' | number | null>(null);
@@ -228,6 +228,10 @@ export default function App() {
       document.title = "Shipping & Returns | Bekky's Touch Beauty";
       const meta = document.querySelector('meta[name="description"]');
       if (meta) meta.setAttribute('content', "Shipping, order tracking and returns information for the Bekky's Touch Beauty demo store.");
+    } else if (route === 'shade-finder') {
+      document.title = "Shade Finder | Bekky's Touch Beauty";
+      const meta = document.querySelector('meta[name="description"]');
+      if (meta) meta.setAttribute('content', "Explore shades and find a beauty routine that suits you at Bekky's Touch Beauty.");
     } else if (route === 'account') {
       document.title = "My Account | Bekky's Touch Beauty";
       const meta = document.querySelector('meta[name="description"]');
@@ -252,6 +256,8 @@ export default function App() {
         document.title = "Contact Client Services | Bekky's Touch Beauty";
       } else if (newRoute === 'shipping-returns') {
         document.title = "Shipping & Returns | Bekky's Touch Beauty";
+      } else if (newRoute === 'shade-finder') {
+        document.title = "Shade Finder | Bekky's Touch Beauty";
       } else if (newRoute === 'account') {
         document.title = "My Account | Bekky's Touch Beauty";
       } else {
@@ -506,7 +512,7 @@ export default function App() {
           setAccountModalMode('signin');
           navigate('account');
         }}
-        onOpenShadeFinder={() => setIsShadeFinderOpen(true)}
+        onOpenShadeFinder={() => navigate('shade-finder')}
         onSelectCategory={handleSelectCategory}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -520,16 +526,24 @@ export default function App() {
         {currentRoute === 'our-story' ? (
           <OurStoryPage
             onNavigateHome={() => navigate('home')}
-            onOpenShadeFinder={() => setIsShadeFinderOpen(true)}
+            onOpenShadeFinder={() => navigate('shade-finder')}
             onSelectCategory={handleSelectCategory}
           />
         ) : currentRoute === 'contact' ? (
           <ContactPage
             onNavigateHome={() => navigate('home')}
-            onOpenShadeFinder={() => setIsShadeFinderOpen(true)}
+            onOpenShadeFinder={() => navigate('shade-finder')}
           />
         ) : currentRoute === 'shipping-returns' ? (
           <ShippingReturnsPage onNavigateContact={() => navigate('contact')} onNavigateHome={() => navigate('home')} />
+        ) : currentRoute === 'shade-finder' ? (
+          <ShadeFinderModal
+            isOpen
+            inline
+            onClose={() => navigate('home')}
+            onAddRoutineToCart={handleAddRoutineToCart}
+            products={products}
+          />
         ) : currentRoute === 'account' ? (
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
             {currentUser ? (
@@ -581,7 +595,7 @@ export default function App() {
           <>
             {/* Cinematic Hero */}
             <Hero
-              onOpenShadeFinder={() => setIsShadeFinderOpen(true)}
+              onOpenShadeFinder={() => navigate('shade-finder')}
               onExploreClick={() => handleSelectCategory('ALL')}
             />
 
@@ -622,7 +636,7 @@ export default function App() {
 
       {/* Footer */}
       <Footer
-        onOpenShadeFinder={() => setIsShadeFinderOpen(true)}
+        onOpenShadeFinder={() => navigate('shade-finder')}
         onSelectCategory={handleSelectCategory}
         onNavigate={navigate}
       />
@@ -660,13 +674,6 @@ export default function App() {
       <OrderSuccessModal
         order={completedOrder}
         onClose={() => setCompletedOrder(null)}
-      />
-
-      <ShadeFinderModal
-        isOpen={isShadeFinderOpen}
-        onClose={() => setIsShadeFinderOpen(false)}
-        onAddRoutineToCart={handleAddRoutineToCart}
-        products={products}
       />
 
       {/* Exact Product & Philosophy Photo Uploader */}
