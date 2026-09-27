@@ -31,13 +31,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   if (!isOpen) return null;
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const freeShippingThreshold = 50.0;
-  const amountToFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
-  const freeShippingProgress = Math.min(100, (subtotal / freeShippingThreshold) * 100);
+  const freeShippingThreshold = 0;
+  const amountToFreeShipping = 0;
+  const freeShippingProgress = 100;
 
   const discountPercent = appliedPromo === 'WELCOME10' ? 0.10 : appliedPromo === 'BEKKYTOUCH' ? 0.15 : appliedPromo === 'GLOW20' ? 0.20 : 0;
   const discountAmount = subtotal * discountPercent;
-  const shipping = subtotal >= freeShippingThreshold || items.length === 0 ? 0 : 4.95;
+  const shipping = 0;
   const total = Math.max(0, subtotal - discountAmount + shipping);
 
   const handlePromoSubmit = (e: React.FormEvent) => {
@@ -241,7 +241,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <div className="flex justify-between">
                   <span>UK Tracked Shipping</span>
                   <span className="font-medium text-stone-900 tabular-nums">
-                    {shipping === 0 ? 'FREE' : `£${shipping.toFixed(2)}`}
+                    FREE
                   </span>
                 </div>
                 <div className="flex justify-between text-sm font-semibold text-stone-900 pt-2 border-t border-stone-200">
