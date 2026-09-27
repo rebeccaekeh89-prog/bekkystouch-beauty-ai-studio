@@ -88,8 +88,7 @@ export default function App() {
         try {
           const directRes = await fetch(`${supabaseUrl}/rest/v1/bt_products?select=*`, {
             headers: {
-              apikey: supabaseKey,
-              Authorization: `Bearer ${supabaseKey}`
+              apikey: supabaseKey
             }
           });
           if (directRes.ok) {
