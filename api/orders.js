@@ -1,7 +1,14 @@
 // Server-side Vercel Function. Never expose SUPABASE_SECRET_KEY in VITE_ variables.
 export default async function handler(req, res) {
+  res.setHeader('Cache-Control', 'private, no-store');
+  if (!['GET', 'POST'].includes(req.method)) {
+    res.setHeader('Allow', 'GET, POST');
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const key = process.env.SUPABASE_SECRET_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const key = process.env.SUPABASE_SECRET_KEY;
+  // Modern secret keys are not JWTs. Legacy service-role keys still need Bearer auth.
+  const databaseHeaders = key ? { apikey: key, ...(key.startsWith('eyJ') ? { Authorization: `Bearer ${key}` } : {}) } : {};
 
   if (!url || !key) {
     return res.status(503).json({ error: 'Order service is not configured yet.' });
@@ -37,21 +44,23 @@ export default async function handler(req, res) {
       }
 
       // 2. Query orders strictly filtered to this verified customer's email
-      const headers = { apikey: key, Authorization: `Bearer ${key}` };
+      const headers = databaseHeaders;
+      // eq treats '_' and '%' in email addresses literally; ilike grants wildcard matches.
+      const emailFilter = encodeURIComponent(`eq."${customerEmail.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
       let ordersRes = await fetch(
-        `${url}/rest/v1/studio_orders?email=ilike.${encodeURIComponent(customerEmail)}&order=created_at.desc`,
+        `${url}/rest/v1/studio_orders?email=${emailFilter}&order=created_at.desc`,
         { headers, cache: 'no-store' }
       );
 
       if (!ordersRes.ok) {
         ordersRes = await fetch(
-          `${url}/rest/v1/bt_orders?email=ilike.${encodeURIComponent(customerEmail)}&order=created_at.desc`,
+          `${url}/rest/v1/bt_orders?email=${emailFilter}&order=created_at.desc`,
           { headers, cache: 'no-store' }
         );
       }
 
       if (!ordersRes.ok) {
-        return res.status(200).json({ orders: [] });
+        return res.status(503).json({ error: 'Order history is temporarily unavailable.' });
       }
 
       const rawOrders = await ordersRes.json();
@@ -81,14 +90,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Please complete all required order details.' });
     }
 
-    const ids = [...new Set(items.map(item => Number(item.product_id)))];
-    if (items.some(item => !Number.isSafeInteger(Number(item.product_id)) || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 20 || String(item.shade || '').length > 80)) {
+    if (items.some(item => !item || typeof item !== 'object' || !Number.isSafeInteger(Number(item.product_id)) || Number(item.product_id) < 1 || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 20 || String(item.shade || '').length > 80)) {
       return res.status(400).json({ error: 'Invalid order item.' });
     }
+    const ids = [...new Set(items.map(item => Number(item.product_id)))];
 
-    const headers = { apikey: key, 'Content-Type': 'application/json' };
+    const headers = { ...databaseHeaders, 'Content-Type': 'application/json' };
     try {
-      let catalogResponse = await fetch(`${url}/rest/v1/bt_products?select=id,name,price&id=in.(${ids.join(',')})`, { headers, cache: 'no-store' });
+      let catalogResponse = await fetch(`${url}/rest/v1/bt_products?select=id,name,price&active=eq.true&id=in.(${ids.join(',')})`, { headers, cache: 'no-store' });
       if (!catalogResponse.ok) {
         catalogResponse = await fetch(`${url}/rest/v1/studio_products?select=id,name,price&active=eq.true&id=in.(${ids.join(',')})`, { headers, cache: 'no-store' });
       }
