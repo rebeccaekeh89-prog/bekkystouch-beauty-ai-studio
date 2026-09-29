@@ -6,7 +6,6 @@ import { SignUpResult } from '../auth';
 
 interface AccountModalProps {
   isOpen: boolean;
-  inline?: boolean;
   onClose: () => void;
   currentUser: { name: string; email: string } | null;
   onSignIn: (email: string, password: string) => Promise<void>;
@@ -24,7 +23,6 @@ interface AccountModalProps {
 
 export const AccountModal: React.FC<AccountModalProps> = ({
   isOpen,
-  inline = false,
   onClose,
   currentUser,
   onSignIn,
@@ -172,7 +170,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
   };
 
   return (
-    <div className={inline ? 'w-full max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-16' : 'fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto'}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
       {/* If Signed In: Show MyAccountArea */}
       {currentUser ? (
         <div className="relative w-full max-w-4xl max-h-[92vh] overflow-y-auto">
@@ -190,13 +188,13 @@ export const AccountModal: React.FC<AccountModalProps> = ({
       ) : (
         /* If Signed Out: Auth Modal */
         <div
-          className={inline ? 'w-full bg-white px-2 sm:px-8 py-5 sm:py-8' : 'relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden animate-in zoom-in-95 duration-200 my-auto'}
+          className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden animate-in zoom-in-95 duration-200 my-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className={inline ? 'pb-8 text-center' : 'p-6 border-b border-stone-200 bg-[#FAF9F5] flex items-center justify-between'}>
-            <div className={inline ? 'flex flex-col items-center gap-3' : 'flex items-center gap-2.5'}>
-              <div className={inline ? 'hidden' : 'w-8 h-8 rounded-full bg-stone-900 text-white flex items-center justify-center'}>
+          <div className="p-6 border-b border-stone-200 bg-[#FAF9F5] flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-stone-900 text-white flex items-center justify-center">
                 {mode === 'forgot' ? (
                   <KeyRound className="w-4 h-4" />
                 ) : mode === 'update_password' ? (
@@ -206,7 +204,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                 )}
               </div>
               <div>
-                <h1 className={inline ? 'font-serif text-4xl font-semibold text-stone-900 leading-tight' : 'font-serif text-lg font-semibold text-stone-900 leading-tight'}>
+                <h2 className="font-serif text-lg font-semibold text-stone-900 leading-tight">
                   {mode === 'forgot'
                     ? 'Reset Your Password'
                     : mode === 'signup'
@@ -214,8 +212,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                     : mode === 'update_password'
                     ? 'Set New Password'
                     : 'Sign In to Bekky’s Touch'}
-                </h1>
-                <p className="text-sm text-stone-500 mt-2">
+                </h2>
+                <p className="text-[11px] text-stone-500">
                   {mode === 'signup'
                     ? 'Join for VIP perks & order tracking'
                     : mode === 'forgot'
@@ -224,13 +222,13 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                 </p>
               </div>
             </div>
-            {!inline && <button
+            <button
               onClick={onClose}
               className="p-1.5 text-stone-400 hover:text-stone-800 rounded-full hover:bg-stone-200 transition-colors cursor-pointer"
               aria-label="Close modal"
             >
               <X className="w-5 h-5" />
-            </button>}
+            </button>
           </div>
 
           {/* Body */}

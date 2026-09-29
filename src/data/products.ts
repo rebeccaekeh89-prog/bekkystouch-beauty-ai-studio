@@ -6,7 +6,7 @@ export const PRODUCTS: Product[] = [
     name: 'Second Skin Foundation',
     category: 'Face',
     price: 28.0,
-    shade: '18 inclusive shades',
+    shade: '9 shades',
     shadesList: [
       '01 Warm Ivory',
       '02 Neutral Beige',
@@ -18,6 +18,17 @@ export const PRODUCTS: Product[] = [
       '08 Warm Espresso',
       '09 Cocoa Luxe'
     ],
+    shadeImages: {
+      '01 Warm Ivory': '/products/shades/foundation-01.png',
+      '02 Neutral Beige': '/products/shades/foundation-02.png',
+      '03 Golden Sand': '/products/shades/foundation-03.png',
+      '04 Warm Honey': '/products/shades/foundation-04.png',
+      '05 Caramel Glow': '/products/shades/foundation-05.png',
+      '06 Rich Amber': '/products/shades/foundation-06.png',
+      '07 Deep Chestnut': '/products/shades/foundation-07.png',
+      '08 Warm Espresso': '/products/shades/foundation-08.png',
+      '09 Cocoa Luxe': '/products/shades/foundation-09.png',
+    },
     image: '/products/second-skin-foundation.png',
     badge: 'Bestseller',
     rating: 4.9,

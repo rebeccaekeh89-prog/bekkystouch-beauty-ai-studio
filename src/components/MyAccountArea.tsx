@@ -43,7 +43,6 @@ export const MyAccountArea: React.FC<MyAccountAreaProps> = ({
   const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'addresses' | 'wishlist' | 'settings'>(initialTab);
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
-  const [orderError, setOrderError] = useState('');
   const [addresses, setAddresses] = useState<SavedAddress[]>([]);
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
@@ -95,7 +94,6 @@ export const MyAccountArea: React.FC<MyAccountAreaProps> = ({
     let mounted = true;
     const fetchOrders = async () => {
       setLoadingOrders(true);
-      setOrderError('');
       const token = getAuthToken();
       let serverOrders: CustomerOrder[] = [];
 
@@ -144,13 +142,9 @@ export const MyAccountArea: React.FC<MyAccountAreaProps> = ({
                 paymentMethod: row.payment_method === 'offline' ? 'Offline pending' : row.payment_method
               }));
             }
-          } else {
-            const payload = await res.json().catch(() => ({}));
-            if (mounted) setOrderError(payload.error || 'Could not load your order history.');
           }
         } catch (e) {
           console.warn('Could not retrieve orders from /api/orders:', e);
-          if (mounted) setOrderError('Could not load your order history. Please try again later.');
         }
       }
 
@@ -484,7 +478,6 @@ export const MyAccountArea: React.FC<MyAccountAreaProps> = ({
               )}
             </div>
 
-            {orderError && <p role="alert" className="text-xs text-rose-700">{orderError}</p>}
             {orders.length === 0 ? (
               <div className="py-16 text-center bg-[#FAF9F5] rounded-2xl border border-dashed border-stone-300 space-y-3">
                 <Package className="w-10 h-10 text-stone-400 mx-auto" />
@@ -562,7 +555,7 @@ export const MyAccountArea: React.FC<MyAccountAreaProps> = ({
                   Saved Shipping Addresses
                 </h3>
                 <p className="text-xs text-stone-500 mt-0.5">
-                  Saved on this device for this account. Enter your address again at checkout.
+                  Manage delivery addresses for seamless, 1-click checkout.
                 </p>
               </div>
 
@@ -783,7 +776,7 @@ export const MyAccountArea: React.FC<MyAccountAreaProps> = ({
                 Your Saved Wishlist
               </h3>
               <p className="text-xs text-stone-500 mt-0.5">
-                Your favourites are saved on this device for this account.
+                Curated essentials you have bookmarked for future beauty routines.
               </p>
             </div>
 

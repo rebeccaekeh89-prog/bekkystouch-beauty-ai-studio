@@ -11,7 +11,7 @@ interface NavbarProps {
   searchQuery: string;
   onSearchChange: (q: string) => void;
   currentUser: { name: string; email: string } | null;
-  onNavigate?: (route: 'home' | 'our-story' | 'contact' | 'account' | 'gifts-sets') => void;
+  onNavigate?: (route: 'home' | 'our-story' | 'contact' | 'account') => void;
   currentRoute?: string;
 }
 
@@ -60,13 +60,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             e.preventDefault();
             onNavigate?.('home');
           }}
-          className="text-xl lg:text-3xl font-serif tracking-tight text-[#1E1B18] hover:opacity-80 transition-opacity whitespace-nowrap cursor-pointer"
+          className="text-2xl sm:text-3xl font-serif tracking-tight text-[#1E1B18] hover:opacity-80 transition-opacity whitespace-nowrap cursor-pointer"
         >
           Bekky&apos;s Touch
         </a>
 
         {/* Navigation Links */}
-        <nav className="hidden md:flex items-center gap-3 lg:gap-6 text-xs lg:text-sm font-medium text-stone-700 tracking-wide">
+        <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-stone-700 tracking-wide">
           <a
             href="#shop"
             onClick={(e) => {
@@ -85,14 +85,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             Shop Collection
-          </a>
-
-          <a
-            href="/gifts-sets"
-            onClick={(e) => { e.preventDefault(); onNavigate?.('gifts-sets'); }}
-            className={`hover:text-[#1E1B18] transition-colors py-1 cursor-pointer ${currentRoute === 'gifts-sets' ? 'text-[#1E1B18] font-bold' : ''}`}
-          >
-            Gifts &amp; Sets
           </a>
 
           <a
@@ -121,14 +113,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             Contact
           </a>
 
-          <a
-            href="/shade-finder"
-            onClick={(e) => { e.preventDefault(); onOpenShadeFinder(); }}
-            className={`hover:text-[#1E1B18] transition-colors py-1 flex items-center gap-1.5 text-stone-700 cursor-pointer ${currentRoute === 'shade-finder' ? 'font-bold' : ''}`}
+          <button
+            onClick={onOpenShadeFinder}
+            className="hover:text-[#1E1B18] transition-colors py-1 flex items-center gap-1.5 text-stone-700 cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-700" />
             <span>Shade Finder</span>
-          </a>
+          </button>
 
           <a
             href="#reviews"
@@ -188,7 +179,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* User Account Button */}
           <button
             onClick={() => {
-              if (onNavigate) {
+              if (onNavigate && currentUser) {
                 onNavigate('account');
               } else {
                 onOpenAccount();
@@ -265,14 +256,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           </a>
 
           <a
-            href="/gifts-sets"
-            onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); onNavigate?.('gifts-sets'); }}
-            className="block text-sm font-medium text-stone-800 py-1"
-          >
-            Gifts &amp; Sets
-          </a>
-
-          <a
             href="/our-story"
             onClick={(e) => {
               e.preventDefault();
@@ -296,10 +279,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             Contact Client Services
           </a>
 
-          <a
-            href="/shade-finder"
-            onClick={(e) => {
-              e.preventDefault();
+          <button
+            onClick={() => {
               setMobileMenuOpen(false);
               onOpenShadeFinder();
             }}
@@ -307,7 +288,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Sparkles className="w-4 h-4 text-amber-700" />
             <span>Find Your Shade</span>
-          </a>
+          </button>
 
           <a
             href="#reviews"
@@ -331,7 +312,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
-                if (onNavigate) {
+                if (onNavigate && currentUser) {
                   onNavigate('account');
                 } else {
                   onOpenAccount();

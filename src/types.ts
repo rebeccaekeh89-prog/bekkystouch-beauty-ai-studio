@@ -5,6 +5,7 @@ export interface Product {
   price: number;
   shade: string;
   shadesList?: string[];
+  shadeImages?: Record<string, string>;
   image: string;
   badge?: 'Bestseller' | 'New' | 'Limited' | 'Viral' | 'Shade Set' | 'Set' | null;
   rating: number;

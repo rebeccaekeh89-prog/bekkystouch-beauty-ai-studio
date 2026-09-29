@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ArrowRight, Heart, Sparkles } from 'lucide-react';
+import { Sparkles, Heart, ShieldCheck, Truck, ArrowRight, MapPin, Feather, Check } from 'lucide-react';
 
 interface OurStoryPageProps {
   onNavigateHome: () => void;
@@ -7,81 +7,241 @@ interface OurStoryPageProps {
   onSelectCategory?: (category: string) => void;
 }
 
-export const OurStoryPage: React.FC<OurStoryPageProps> = ({ onNavigateHome, onOpenShadeFinder }) => {
+export const OurStoryPage: React.FC<OurStoryPageProps> = ({
+  onNavigateHome,
+  onOpenShadeFinder,
+  onSelectCategory
+}) => {
   useEffect(() => {
-    document.title = "Our Story | Bekky's Touch Beauty";
-    document.querySelector('meta[name="description"]')?.setAttribute(
-      'content',
-      "Get to know Bekky's Touch Beauty: beauty essentials, shades and finishing touches for a look that feels like you."
-    );
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.title = "Our Story & Philosophy | Bekky's Touch Luxury Beauty";
+
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute(
+        'content',
+        "Discover the philosophy, clean formulation standards, and craftsmanship behind Bekky's Touch Beauty. Luxury cosmetics engineered with intention, purity, and purpose in London."
+      );
+    }
   }, []);
 
-  const explore = () => {
-    onNavigateHome();
-    window.setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 100);
-  };
-
   return (
-    <div className="min-h-screen bg-[#FAF9F5] text-stone-900">
-      <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-16">
-        <img
-          src="/Philosophy.png"
-          alt="The Bekky's Touch Beauty collection"
-          className="aspect-[4/5] w-full rounded-3xl object-cover shadow-sm"
-        />
-        <div>
-          <span className="text-sm font-semibold uppercase tracking-widest text-amber-900">Our Story</span>
-          <h1 className="mt-4 font-serif text-4xl font-semibold leading-tight sm:text-5xl">Beauty that feels like you.</h1>
-          <p className="mt-4 text-lg font-medium text-amber-950">Your shade. Your mood. Your moment.</p>
-          <p className="mt-6 text-base leading-relaxed text-stone-700">
-            A little colour can change your mood. A favourite shade can make you feel ready for anything. At Bekky’s Touch Beauty, we believe those moments belong to everyone.
-          </p>
-          <p className="mt-4 text-base leading-relaxed text-stone-700">
-            Beauty is personal. Some mornings you want a quick, fresh look; other days, you want to have fun with colour. There’s no single “right” way to show up as yourself.
-          </p>
-          <p className="mt-4 text-base leading-relaxed text-stone-700">
-            That idea is at the heart of Bekky’s Touch. Our collection brings together complexion products, colour and finishing touches so you can explore what suits your skin, your style and your day.
-          </p>
-          <p className="mt-6 font-serif text-xl italic text-amber-950">A touch of beauty. A whole lot of you.</p>
-        </div>
-      </section>
-
-      <section className="border-y border-stone-200 bg-white px-4 py-16 sm:px-6">
-        <div className="mx-auto max-w-6xl">
-          <div className="mx-auto max-w-2xl text-center">
-            <span className="text-sm font-semibold uppercase tracking-widest text-amber-900">What matters to us</span>
-            <h2 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl">Your routine. Your rules.</h2>
-            <p className="mt-4 text-base leading-relaxed text-stone-700">Start with one favourite or build a whole new look. Make it yours.</p>
+    <div className="bg-[#FAF9F5] min-h-screen text-stone-800">
+      {/* Editorial Hero Header */}
+      <section className="relative py-20 sm:py-28 border-b border-[#ECE7DE] bg-gradient-to-b from-[#F4EFE6] to-[#FAF9F5] overflow-hidden">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 border border-stone-200/90 text-amber-950 text-xs font-semibold uppercase tracking-widest shadow-2xs mb-6">
+            <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+            <span>Our Heritage &amp; Vision</span>
           </div>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            <div className="rounded-2xl border border-stone-200 bg-[#FAF9F5] p-6">
-              <Heart className="h-6 w-6 text-amber-900" aria-hidden="true" />
-              <h3 className="mt-4 font-serif text-xl font-semibold">Feel like yourself</h3>
-              <p className="mt-2 text-base leading-relaxed text-stone-700">Makeup can be a small act of self-expression. Wear what makes you feel comfortable and confident.</p>
-            </div>
-            <div className="rounded-2xl border border-stone-200 bg-[#FAF9F5] p-6">
-              <Sparkles className="h-6 w-6 text-amber-900" aria-hidden="true" />
-              <h3 className="mt-4 font-serif text-xl font-semibold">Find your fit</h3>
-              <p className="mt-2 text-base leading-relaxed text-stone-700">Explore shades and finishes at your own pace. Your favourite look is the one you enjoy wearing.</p>
-            </div>
-            <div className="rounded-2xl border border-stone-200 bg-[#FAF9F5] p-6">
-              <ArrowRight className="h-6 w-6 text-amber-900" aria-hidden="true" />
-              <h3 className="mt-4 font-serif text-xl font-semibold">Keep it simple</h3>
-              <p className="mt-2 text-base leading-relaxed text-stone-700">From an everyday essential to a finishing touch, choose what works for your routine.</p>
-            </div>
+
+          <h1 className="font-serif text-4xl sm:text-6xl font-semibold text-stone-900 tracking-tight leading-tight max-w-3xl mx-auto">
+            Beauty engineered with intention, purity, and purpose.
+          </h1>
+
+          <p className="mt-6 text-base sm:text-lg text-stone-600 max-w-2xl mx-auto leading-relaxed font-light">
+            Born from a passion for clean, effortless glamour, <strong>Bekky’s Touch</strong> was created in London to redefine daily beauty essentials for every complexion.
+          </p>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-stone-500">
+            <span className="flex items-center gap-1.5 bg-white/60 px-3 py-1.5 rounded-full border border-stone-200/60">
+              <MapPin className="w-3.5 h-3.5 text-amber-800" /> London · United Kingdom
+            </span>
+            <span className="flex items-center gap-1.5 bg-white/60 px-3 py-1.5 rounded-full border border-stone-200/60">
+              <Heart className="w-3.5 h-3.5 text-amber-800" /> 100% Cruelty-Free
+            </span>
+            <span className="flex items-center gap-1.5 bg-white/60 px-3 py-1.5 rounded-full border border-stone-200/60">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-800" /> Skin-First Botanical Formulas
+            </span>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20">
-        <div className="rounded-3xl bg-[#1E1B18] px-6 py-10 text-center text-white sm:px-12 sm:py-14">
-          <h2 className="font-serif text-3xl font-semibold sm:text-4xl">Ready to make it yours?</h2>
-          <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-stone-200">Your next favourite could be one shade away. Take a look around or find a place to start.</p>
-          <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-            <button type="button" onClick={explore} className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-stone-900 hover:bg-stone-100">
-              Explore the collection <ArrowRight className="h-4 w-4" aria-hidden="true" />
+      {/* Main Narrative & Visual Showcase */}
+      <section className="py-16 sm:py-24 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          {/* Visual Showcase */}
+          <div className="lg:col-span-6 relative">
+            <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-xl border border-stone-200/80 bg-stone-100 relative group">
+              <img
+                src="/Philosophy.png"
+                alt="Bekky's Touch luxury editorial craftsmanship"
+                className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                onError={(e) => {
+                  // Fallback to /philosophy.jpg if png not loaded
+                  (e.target as HTMLImageElement).src = '/philosophy.jpg';
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-4 left-4 right-4 text-white text-xs font-serif italic drop-shadow-sm">
+                Bekky’s Touch Boutique Editorial · London
+              </div>
+            </div>
+
+            {/* Founder Pull Quote Card */}
+            <div className="mt-6 sm:-mt-10 sm:ml-8 relative sm:z-10 bg-white p-6 sm:p-7 rounded-2xl shadow-lg border border-stone-200/90 max-w-md">
+              <span className="text-3xl font-serif text-amber-800/40 leading-none">&ldquo;</span>
+              <p className="font-serif italic text-stone-900 text-sm sm:text-base leading-relaxed -mt-2">
+                True beauty doesn’t mask who you are — it illuminates the confidence you already carry inside.
+              </p>
+              <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
+                <div>
+                  <span className="font-serif font-bold text-xs uppercase tracking-wider text-amber-950 block">
+                    — Bekky
+                  </span>
+                  <span className="text-[11px] text-stone-500 font-medium">Founder, Bekky’s Touch Beauty Ltd.</span>
+                </div>
+                <Feather className="w-4 h-4 text-amber-700" />
+              </div>
+            </div>
+          </div>
+
+          {/* Narrative Content */}
+          <div className="lg:col-span-6 space-y-6">
+            <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest text-amber-900 uppercase">
+              <span>The Origin</span>
+            </div>
+
+            <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-stone-900 leading-tight">
+              Curated beauty essentials designed to enhance natural elegance for every complexion.
+            </h2>
+
+            <p className="text-stone-600 leading-relaxed text-sm sm:text-base">
+              Every formula at <strong>Bekky’s Touch</strong> begins with a simple truth: cosmetics should never be a chore, a mask, or an irritation to your skin. We combine skin-first nourishment with high-performance wear to create formulas that feel weightless from morning to evening.
+            </p>
+
+            <p className="text-stone-600 leading-relaxed text-sm sm:text-base">
+              From our flagship <em>Second Skin Foundation</em> and silk-drenched <em>Cloud Blush</em> to our precision brow sculpting essentials, each product is developed with rich botanical integrity, ensuring every shade looks vibrant and radiant across diverse undertones without ashiness.
+            </p>
+
+            {/* Quick Commitments List */}
+            <div className="pt-2 space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center shrink-0 mt-0.5">
+                  <Check className="w-3 h-3" />
+                </div>
+                <p className="text-xs sm:text-sm text-stone-700">
+                  <strong>Skin-First Actives:</strong> Enriched with squalane, hyaluronic acid, and botanical oils for all-day comfort.
+                </p>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center shrink-0 mt-0.5">
+                  <Check className="w-3 h-3" />
+                </div>
+                <p className="text-xs sm:text-sm text-stone-700">
+                  <strong>Undertone Balance:</strong> Formulated specifically to complement deep, warm, olive, and neutral skin profiles.
+                </p>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center shrink-0 mt-0.5">
+                  <Check className="w-3 h-3" />
+                </div>
+                <p className="text-xs sm:text-sm text-stone-700">
+                  <strong>Ethical Integrity:</strong> 100% cruelty-free, paraben-free, and packaged with sustainable care.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* The Three Pillars Section */}
+      <section className="py-16 sm:py-20 bg-white border-y border-[#ECE7DE]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="text-xs uppercase tracking-widest text-amber-900 font-semibold">
+              Our Formulation Standard
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-stone-900 mt-2">
+              The Three Pillars of Our Craft
+            </h2>
+            <p className="text-stone-600 text-sm mt-3">
+              We hold our entire boutique catalogue to uncompromising standards of purity, efficacy, and ethical production.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Pillar 1 */}
+            <div className="p-8 rounded-2xl bg-[#FAF9F5] border border-stone-200/80 hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-xl bg-amber-100/70 border border-amber-200/80 flex items-center justify-center text-amber-900 mb-6">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-xl font-semibold text-stone-900">
+                1. Skin-First Nourishment
+              </h3>
+              <p className="text-xs sm:text-sm text-stone-600 mt-3 leading-relaxed">
+                Infused with premium botanical actives, ultra-hydrating oils, and restorative skincare compounds. Every product actively protects and conditions your barrier throughout wear.
+              </p>
+            </div>
+
+            {/* Pillar 2 */}
+            <div className="p-8 rounded-2xl bg-[#FAF9F5] border border-stone-200/80 hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-xl bg-amber-100/70 border border-amber-200/80 flex items-center justify-center text-amber-900 mb-6">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-xl font-semibold text-stone-900">
+                2. Inclusive Spectrum
+              </h3>
+              <p className="text-xs sm:text-sm text-stone-600 mt-3 leading-relaxed">
+                Expertly balanced undertones crafted to celebrate every skin tone. We eliminate the chalky casts and heavy masks common in conventional cosmetics.
+              </p>
+            </div>
+
+            {/* Pillar 3 */}
+            <div className="p-8 rounded-2xl bg-[#FAF9F5] border border-stone-200/80 hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-xl bg-amber-100/70 border border-amber-200/80 flex items-center justify-center text-amber-900 mb-6">
+                <Heart className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-xl font-semibold text-stone-900">
+                3. Clean &amp; Ethical Craft
+              </h3>
+              <p className="text-xs sm:text-sm text-stone-600 mt-3 leading-relaxed">
+                100% cruelty-free, never tested on animals. Formulated without parabens, harsh sulfates, or phthalates, from laboratory to packaging.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* London Base & Delivery Promise */}
+      <section className="py-16 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-[#1E1B18] text-[#FAF9F5] rounded-3xl p-8 sm:p-12 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="space-y-3 max-w-xl">
+            <span className="text-xs uppercase tracking-widest text-amber-400 font-semibold flex items-center gap-1.5">
+              <Truck className="w-4 h-4" /> Nationwide &amp; Beyond
+            </span>
+            <h3 className="font-serif text-2xl sm:text-3xl font-semibold">
+              Delivered with care from our London boutique.
+            </h3>
+            <p className="text-stone-300 text-xs sm:text-sm leading-relaxed">
+              We offer complimentary tracked delivery on all UK domestic orders over £50, packaged in conscious, protective materials.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            <button
+              onClick={() => {
+                onNavigateHome();
+                setTimeout(() => {
+                  const el = document.getElementById('shop');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              }}
+              className="w-full sm:w-auto px-6 py-3 bg-[#FAF9F5] text-stone-900 text-xs font-semibold rounded-xl hover:bg-white transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+            >
+              <span>Explore Boutique</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
-            <button type="button" onClick={onOpenShadeFinder} className="rounded-xl border border-stone-400 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10">Find your shade</button>
+
+            <button
+              onClick={onOpenShadeFinder}
+              className="w-full sm:w-auto px-6 py-3 border border-stone-700 hover:border-stone-500 text-stone-200 text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>Find Your Shade</span>
+            </button>
           </div>
         </div>
       </section>

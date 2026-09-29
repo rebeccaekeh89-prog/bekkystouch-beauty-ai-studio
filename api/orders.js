@@ -1,7 +1,7 @@
 // Server-side Vercel Function. Never expose SUPABASE_SECRET_KEY in VITE_ variables.
 export default async function handler(req, res) {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const key = process.env.SUPABASE_SECRET_KEY;
+  const key = process.env.SUPABASE_SECRET_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
   if (!url || !key) {
     return res.status(503).json({ error: 'Order service is not configured yet.' });
@@ -21,8 +21,7 @@ export default async function handler(req, res) {
 
     try {
       // 1. Authenticate user against Supabase Auth endpoint
-      const pubKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      if (!pubKey) return res.status(503).json({ error: 'Authentication is not configured yet.' });
+      const pubKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY || key;
       const userRes = await fetch(`${url}/auth/v1/user`, {
         headers: { apikey: pubKey, Authorization: `Bearer ${token}` }
       });
@@ -32,24 +31,21 @@ export default async function handler(req, res) {
       }
 
       const authUser = await userRes.json();
-      if (!authUser.email_confirmed_at) {
-        return res.status(403).json({ error: 'Confirm your email before viewing order history.' });
-      }
       const customerEmail = authUser.email;
       if (!customerEmail) {
         return res.status(400).json({ error: 'User email not found.' });
       }
 
       // 2. Query orders strictly filtered to this verified customer's email
-      const headers = { apikey: key };
+      const headers = { apikey: key, Authorization: `Bearer ${key}` };
       let ordersRes = await fetch(
-        `${url}/rest/v1/studio_orders?email=eq.${encodeURIComponent(customerEmail)}&order=created_at.desc`,
+        `${url}/rest/v1/studio_orders?email=ilike.${encodeURIComponent(customerEmail)}&order=created_at.desc`,
         { headers, cache: 'no-store' }
       );
 
       if (!ordersRes.ok) {
         ordersRes = await fetch(
-          `${url}/rest/v1/bt_orders?email=eq.${encodeURIComponent(customerEmail)}&order=created_at.desc`,
+          `${url}/rest/v1/bt_orders?email=ilike.${encodeURIComponent(customerEmail)}&order=created_at.desc`,
           { headers, cache: 'no-store' }
         );
       }

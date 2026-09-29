@@ -40,9 +40,10 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
   useEffect(() => {
     setImgError(false);
-  }, [product?.image]);
+  }, [product?.image, selectedShade]);
 
   if (!product) return null;
+  const shadeImage = product.shadeImages?.[selectedShade] || product.image;
 
   const handleAdd = () => {
     onAddToCart(product, selectedShade || product.shade, quantity);
@@ -81,10 +82,11 @@ export const ProductModal: React.FC<ProductModalProps> = ({
           <div className="w-full max-w-sm aspect-square relative rounded-xl overflow-hidden shadow-sm bg-[#F5F2EB] flex items-center justify-center">
             {!imgError ? (
               <img
-                src={product.image}
-                alt={product.name}
+                key={shadeImage}
+                src={shadeImage}
+                alt={`${product.name} in ${selectedShade}`}
                 onError={() => setImgError(true)}
-                className="w-full h-full object-cover object-center"
+                className="w-full h-full object-cover object-center transition-opacity duration-200"
               />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-[#F3EFE7]">
@@ -178,6 +180,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                         key={shadeName}
                         type="button"
                         onClick={() => setSelectedShade(shadeName)}
+                        aria-pressed={isSelected}
                         className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                           isSelected
                             ? 'bg-[#1E1B18] text-white shadow-xs'
@@ -322,7 +325,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
             <p className="text-[11px] text-stone-500 text-center flex items-center justify-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-stone-400" />
-              <span>Free UK delivery shown at checkout · Demo orders only</span>
+              <span>30-Day Hassle-Free Returns & Free UK Shipping over £50</span>
             </p>
           </div>
         </div>

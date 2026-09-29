@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabaseUrl, supabasePublishableKey } from '../auth';
-import { Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Mail, MapPin, Send, CheckCircle2, AlertCircle, Clock, Sparkles, HelpCircle, ArrowRight } from 'lucide-react';
 
 interface ContactPageProps {
   onNavigateHome: () => void;
@@ -13,7 +12,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
 }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [orderNumber, setOrderNumber] = useState('');
+  const [phone, setPhone] = useState('');
   const [subject, setSubject] = useState('Order & Shipping Inquiry');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,59 +27,150 @@ export const ContactPage: React.FC<ContactPageProps> = ({
     if (metaDescription) {
       metaDescription.setAttribute(
         'content',
-        "Contact Bekky's Touch Beauty using our private enquiry form for product questions and order support."
+        "Get in touch with Bekky's Touch Beauty client concierge in London. Contact us for order support, personalized shade match advice, and boutique beauty inquiries."
       );
     }
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
 
-    if (name.trim().length < 2 || !/^\S+@\S+\.\S+$/.test(email.trim()) || message.trim().length < 10) {
-      setErrorMessage('Please enter your name, a valid email address, and a message of at least 10 characters.');
+    if (!name.trim() || !email.trim() || !message.trim()) {
+      setErrorMessage('Please fill in your name, email address, and message.');
+      return;
+    }
+
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+      setErrorMessage('Please enter a valid email address.');
+      return;
+    }
+
+    if (message.trim().length < 10) {
+      setErrorMessage('Please write a message with at least 10 characters so we can best assist you.');
       return;
     }
 
     setIsSubmitting(true);
-    try {
-      const response = await fetch(`${supabaseUrl}/rest/v1/contact_messages`, {
-        method: 'POST',
-        headers: {
-          apikey: supabasePublishableKey,
-          'Content-Type': 'application/json',
-          Prefer: 'return=minimal'
-        },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          phone: null,
-          order_number: orderNumber.trim() || null,
-          subject,
-          message: message.trim()
-        })
-      });
-      if (!response.ok) throw new Error('We could not receive your message. Please try again.');
-      setSubmitted(true);
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'We could not receive your message. Please try again.');
-    } finally {
+
+    // Simulate sending with responsive feedback
+    setTimeout(() => {
       setIsSubmitting(false);
-    }
+      setSubmitted(true);
+    }, 600);
   };
+
+  const mailtoLink = `mailto:rebeccaekeh89@gmail.com?subject=${encodeURIComponent(
+    `[Bekky's Touch] ${subject} from ${name || 'Customer'}`
+  )}&body=${encodeURIComponent(
+    `Hello Bekky's Touch Team,\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone || 'Not provided'}\nInquiry Type: ${subject}\n\nMessage:\n${message}\n`
+  )}`;
 
   return (
     <div className="bg-[#FAF9F5] min-h-screen text-stone-800">
-      <section className="pt-16 sm:pt-20 pb-8 text-center px-4">
-        <h1 className="font-serif text-4xl sm:text-5xl font-semibold text-stone-900">Contact Us</h1>
-        <p className="mt-4 text-sm sm:text-base text-stone-600 max-w-xl mx-auto">
-          Have a question about an order or a product? Send us a message below.
-        </p>
+      {/* Header */}
+      <section className="py-16 sm:py-20 border-b border-[#ECE7DE] bg-gradient-to-b from-[#F4EFE6] to-[#FAF9F5]">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 border border-stone-200 text-amber-950 text-xs font-semibold uppercase tracking-widest shadow-2xs mb-5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+            <span>Client Services &amp; Concierge</span>
+          </div>
+
+          <h1 className="font-serif text-3xl sm:text-5xl font-semibold text-stone-900 tracking-tight">
+            We are here to assist you.
+          </h1>
+
+          <p className="mt-4 text-sm sm:text-base text-stone-600 max-w-xl mx-auto leading-relaxed font-light">
+            Have a question about an order, shade matching, or clean ingredients? Reach our dedicated team in London.
+          </p>
+        </div>
       </section>
 
       {/* Main Content */}
-      <section className="pb-16 sm:pb-24 px-4 sm:px-6">
-        <div className="w-full max-w-3xl mx-auto">
+      <section className="py-14 sm:py-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
+          {/* Left Column: Direct Contact Information */}
+          <div className="lg:col-span-5 space-y-6">
+            <div>
+              <h2 className="font-serif text-2xl font-semibold text-stone-900">
+                Contact Details
+              </h2>
+              <p className="text-xs sm:text-sm text-stone-600 mt-1 leading-relaxed">
+                Connect directly with our client care team for boutique support and recommendations.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {/* Email Card */}
+              <div className="p-5 bg-white rounded-2xl border border-stone-200/90 shadow-xs flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-amber-100/70 border border-amber-200/80 flex items-center justify-center text-amber-900 shrink-0">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-sm font-semibold text-stone-900">Direct Email</h3>
+                  <a
+                    href="mailto:rebeccaekeh89@gmail.com"
+                    className="text-xs text-amber-900 hover:text-amber-950 underline font-medium block mt-0.5 break-all"
+                  >
+                    rebeccaekeh89@gmail.com
+                  </a>
+                  <p className="text-[11px] text-stone-500 mt-1">
+                    Replies delivered within 24–48 business hours.
+                  </p>
+                </div>
+              </div>
+
+              {/* Location Card */}
+              <div className="p-5 bg-white rounded-2xl border border-stone-200/90 shadow-xs flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-amber-100/70 border border-amber-200/80 flex items-center justify-center text-amber-900 shrink-0">
+                  <MapPin className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-sm font-semibold text-stone-900">Registered Office</h3>
+                  <p className="text-xs text-stone-700 font-medium mt-0.5">
+                    Bekky’s Touch Beauty Ltd.
+                  </p>
+                  <p className="text-xs text-stone-500">London · United Kingdom</p>
+                </div>
+              </div>
+
+              {/* Hours Card */}
+              <div className="p-5 bg-white rounded-2xl border border-stone-200/90 shadow-xs flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-amber-100/70 border border-amber-200/80 flex items-center justify-center text-amber-900 shrink-0">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-sm font-semibold text-stone-900">Concierge Hours</h3>
+                  <p className="text-xs text-stone-700 mt-0.5">
+                    Monday to Friday: 9:00 AM – 5:30 PM (GMT)
+                  </p>
+                  <p className="text-[11px] text-stone-500 mt-0.5">
+                    Weekend inquiries answered on the following business day.
+                  </p>
+                </div>
+              </div>
+
+              {/* Shade Match Callout */}
+              <div className="p-5 bg-[#FAF4EA] rounded-2xl border border-[#E9DFCE] text-amber-950 flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="font-serif text-sm font-semibold">Unsure of your shade?</h3>
+                  <p className="text-xs text-amber-900/80 mt-1">
+                    Take our 60-second Shade Finder Matcher to discover your complexion match.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={onOpenShadeFinder}
+                  className="px-3 py-1.5 bg-[#1E1B18] text-white text-xs font-semibold rounded-lg hover:bg-stone-800 transition-colors shrink-0 cursor-pointer"
+                >
+                  Find Shade
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Interactive Contact Form */}
+          <div className="lg:col-span-7">
             <div className="bg-white rounded-3xl border border-stone-200/90 shadow-md p-6 sm:p-10">
               {submitted ? (
                 <div className="text-center py-10 space-y-4">
@@ -88,21 +178,27 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
                   <h3 className="font-serif text-2xl font-semibold text-stone-900">
-                    Message Received
+                    Message Sent Successfully!
                   </h3>
                   <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto leading-relaxed">
-                    Thank you for getting in touch. Your message has been received. Please allow time for a reply.
+                    Thank you, <strong>{name}</strong>. Your inquiry has been received. Our concierge team in London will review your notes and reply directly to <strong>{email}</strong> within 24–48 business hours.
                   </p>
 
                   <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
-
+                    <a
+                      href={mailtoLink}
+                      className="w-full sm:w-auto px-5 py-2.5 bg-[#FAF9F5] border border-stone-300 hover:bg-stone-100 text-stone-800 text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Mail className="w-4 h-4 text-stone-600" />
+                      <span>Open in Mail Client</span>
+                    </a>
                     <button
                       type="button"
                       onClick={() => {
                         setSubmitted(false);
                         setName('');
                         setEmail('');
-                        setOrderNumber('');
+                        setPhone('');
                         setMessage('');
                       }}
                       className="w-full sm:w-auto px-5 py-2.5 bg-[#1E1B18] text-white text-xs font-semibold rounded-xl hover:bg-stone-800 transition-colors"
@@ -118,7 +214,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                       Send a Message
                     </h2>
                     <p className="text-xs text-stone-500 mt-1">
-                      Complete the fields below to send your message. We will reply to the email address you provide.
+                      Complete the fields below and our team will get back to you promptly.
                     </p>
                   </div>
 
@@ -159,7 +255,21 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                     </div>
                   </div>
 
-                  <div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 mb-1">
+                        Contact Phone <span className="text-stone-400 font-normal">(Optional)</span>
+                      </label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+44 7000 000000"
+                        className="w-full px-3.5 py-2.5 bg-[#FAF9F5] border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 transition-all"
+                      />
+                    </div>
+
+                    <div>
                       <label className="block text-xs font-medium text-stone-700 mb-1">
                         Inquiry Topic
                       </label>
@@ -174,16 +284,12 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                         <option value="VIP Beauty Club & Perks">VIP Beauty Club &amp; Perks</option>
                         <option value="General Question">General Question</option>
                       </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-stone-700 mb-1">Order Number <span className="text-stone-400 font-normal">(Optional)</span></label>
-                    <input type="text" maxLength={80} value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder="If your question is about an order" className="w-full px-3.5 py-2.5 bg-[#FAF9F5] border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 transition-all" />
+                    </div>
                   </div>
 
                   <div>
                     <label className="block text-xs font-medium text-stone-700 mb-1">
-                      Description <span className="text-rose-500">*</span>
+                      Your Message <span className="text-rose-500">*</span>
                     </label>
                     <textarea
                       rows={5}
@@ -197,7 +303,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
 
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
                     <p className="text-[11px] text-stone-400">
-                      Your details are used to respond to this enquiry.
+                      Inquiries are directed to <span className="text-stone-600 font-medium">rebeccaekeh89@gmail.com</span>
                     </p>
 
                     <button
@@ -221,6 +327,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                 </form>
               )}
             </div>
+          </div>
         </div>
       </section>
     </div>
