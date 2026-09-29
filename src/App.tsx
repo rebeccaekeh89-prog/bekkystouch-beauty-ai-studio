@@ -24,45 +24,34 @@ import { ImageUploadModal } from './components/ImageUploadModal';
 import { Toast } from './components/Toast';
 import { OurStoryPage } from './components/OurStoryPage';
 import { ContactPage } from './components/ContactPage';
+import { ShippingReturnsPage } from './components/ShippingReturnsPage';
+import { GiftsSetsPage } from './components/GiftsSetsPage';
 import { MyAccountArea } from './components/MyAccountArea';
-import { restoreUser, signIn, signOut, signUp, resetPassword, updatePassword } from './auth';
+import { restoreUser, signIn, signOut, signUp, resetPassword, updatePassword, supabaseUrl, supabasePublishableKey } from './auth';
 
-type Route = 'home' | 'our-story' | 'contact' | 'account';
+type Route = 'home' | 'our-story' | 'contact' | 'account' | 'shipping-returns' | 'shade-finder' | 'gifts-sets';
 
 const getInitialRoute = (): Route => {
   if (typeof window === 'undefined') return 'home';
   const path = window.location.pathname.toLowerCase();
   if (path === '/our-story' || path.startsWith('/our-story/')) return 'our-story';
   if (path === '/contact' || path.startsWith('/contact/')) return 'contact';
+  if (path === '/shipping-returns' || path.startsWith('/shipping-returns/')) return 'shipping-returns';
+  if (path === '/shade-finder' || path.startsWith('/shade-finder/')) return 'shade-finder';
+  if (path === '/gifts-sets' || path.startsWith('/gifts-sets/')) return 'gifts-sets';
   if (path === '/account' || path.startsWith('/account/') || path === '/my-account') return 'account';
 
   const hash = window.location.hash.toLowerCase();
   if (hash.includes('our-story')) return 'our-story';
   if (hash.includes('contact')) return 'contact';
+  if (hash.includes('shipping-returns')) return 'shipping-returns';
   if (hash.includes('account')) return 'account';
 
   return 'home';
 };
 
 export default function App() {
-  const [products, setProducts] = useState<Product[]>(() => {
-    try {
-      const saved = localStorage.getItem('bekkys_touch_custom_images');
-      if (saved) {
-        const overrides: Record<number, string> = JSON.parse(saved);
-        return PRODUCTS.map(p => {
-          const customUrl = overrides[p.id];
-          if (customUrl && !customUrl.startsWith('/products/')) {
-            return { ...p, image: customUrl };
-          }
-          return p;
-        });
-      }
-    } catch (e) {
-      console.warn('Failed to load custom image overrides', e);
-    }
-    return PRODUCTS;
-  });
+  const [products, setProducts] = useState<Product[]>(PRODUCTS);
 
   const [currentRoute, setCurrentRoute] = useState<Route>(getInitialRoute);
 
@@ -70,8 +59,7 @@ export default function App() {
     let active = true;
 
     async function loadCatalogue() {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const supabaseKey = supabasePublishableKey;
 
       interface DbProduct {
         id?: number | string;
@@ -88,8 +76,7 @@ export default function App() {
         try {
           const directRes = await fetch(`${supabaseUrl}/rest/v1/bt_products?select=*`, {
             headers: {
-              apikey: supabaseKey,
-              Authorization: `Bearer ${supabaseKey}`
+              apikey: supabaseKey
             }
           });
           if (directRes.ok) {
@@ -115,14 +102,7 @@ export default function App() {
       if (!active || !rows || rows.length === 0) return;
 
       setProducts(prev => {
-        const customOverridesStr = localStorage.getItem('bekkys_touch_custom_images');
-        const customMap: Record<number, string> = customOverridesStr ? JSON.parse(customOverridesStr) : {};
-
         return prev.map(p => {
-          if (customMap[p.id]) {
-            return { ...p, image: customMap[p.id] };
-          }
-
           const match = rows!.find(r => {
             if (Number(r.id) === p.id) return true;
             if (r.name && String(r.name).trim().toLowerCase() === p.name.trim().toLowerCase()) return true;
@@ -176,12 +156,24 @@ export default function App() {
   // Wishlist state
   const [wishlistIds, setWishlistIds] = useState<number[]>(() => {
     try {
-      const saved = localStorage.getItem('bekkys_touch_wishlist');
+      const saved = localStorage.getItem('bekkys_touch_wishlist_guest');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
     }
   });
+
+  useEffect(() => {
+    const wishlistKey = currentUser
+      ? `bekkys_touch_wishlist_${currentUser.email.toLowerCase()}`
+      : 'bekkys_touch_wishlist_guest';
+    try {
+      const saved = JSON.parse(localStorage.getItem(wishlistKey) || '[]');
+      setWishlistIds(Array.isArray(saved) ? saved.filter(Number.isSafeInteger) : []);
+    } catch {
+      setWishlistIds([]);
+    }
+  }, [currentUser?.email]);
 
   const toggleWishlist = (productId: number) => {
     setWishlistIds((prev) => {
@@ -189,7 +181,10 @@ export default function App() {
         ? prev.filter((id) => id !== productId)
         : [...prev, productId];
       try {
-        localStorage.setItem('bekkys_touch_wishlist', JSON.stringify(next));
+        const wishlistKey = currentUser
+          ? `bekkys_touch_wishlist_${currentUser.email.toLowerCase()}`
+          : 'bekkys_touch_wishlist_guest';
+        localStorage.setItem(wishlistKey, JSON.stringify(next));
       } catch (e) {
         console.warn('Could not save wishlist to storage:', e);
       }
@@ -208,8 +203,6 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [isShadeFinderOpen, setIsShadeFinderOpen] = useState(false);
-  const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [accountModalMode, setAccountModalMode] = useState<'signin' | 'signup' | 'forgot' | 'update_password'>('signin');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadModalTarget, setUploadModalTarget] = useState<'philosophy' | number | null>(null);
@@ -228,11 +221,23 @@ export default function App() {
     if (route === 'our-story') {
       document.title = "Our Story & Philosophy | Bekky's Touch Luxury Beauty";
       const meta = document.querySelector('meta[name="description"]');
-      if (meta) meta.setAttribute('content', "Discover the philosophy, clean formulation standards, and craftsmanship behind Bekky's Touch Beauty. Luxury cosmetics engineered with intention, purity, and purpose in London.");
+      if (meta) meta.setAttribute('content', "Discover the products and beauty philosophy behind Bekky's Touch Beauty.");
     } else if (route === 'contact') {
       document.title = "Contact Client Services | Bekky's Touch Beauty";
       const meta = document.querySelector('meta[name="description"]');
-      if (meta) meta.setAttribute('content', "Get in touch with Bekky's Touch Beauty client concierge in London. Contact us for order support, personalized shade match advice, and boutique beauty inquiries.");
+      if (meta) meta.setAttribute('content', "Contact Bekky's Touch Beauty by email for product questions and order support.");
+    } else if (route === 'shipping-returns') {
+      document.title = "Shipping & Returns | Bekky's Touch Beauty";
+      const meta = document.querySelector('meta[name="description"]');
+      if (meta) meta.setAttribute('content', "Shipping, order tracking and returns information for the Bekky's Touch Beauty demo store.");
+    } else if (route === 'shade-finder') {
+      document.title = "Shade Finder | Bekky's Touch Beauty";
+      const meta = document.querySelector('meta[name="description"]');
+      if (meta) meta.setAttribute('content', "Explore shades and find a beauty routine that suits you at Bekky's Touch Beauty.");
+    } else if (route === 'gifts-sets') {
+      document.title = "Gifts & Sets | Bekky's Touch Beauty";
+      const meta = document.querySelector('meta[name="description"]');
+      if (meta) meta.setAttribute('content', "Shop Bekky's Touch Beauty gifts and sets featuring our makeup favourites.");
     } else if (route === 'account') {
       document.title = "My Account | Bekky's Touch Beauty";
       const meta = document.querySelector('meta[name="description"]');
@@ -255,6 +260,12 @@ export default function App() {
         document.title = "Our Story & Philosophy | Bekky's Touch Luxury Beauty";
       } else if (newRoute === 'contact') {
         document.title = "Contact Client Services | Bekky's Touch Beauty";
+      } else if (newRoute === 'shipping-returns') {
+        document.title = "Shipping & Returns | Bekky's Touch Beauty";
+      } else if (newRoute === 'shade-finder') {
+        document.title = "Shade Finder | Bekky's Touch Beauty";
+      } else if (newRoute === 'gifts-sets') {
+        document.title = "Gifts & Sets | Bekky's Touch Beauty";
       } else if (newRoute === 'account') {
         document.title = "My Account | Bekky's Touch Beauty";
       } else {
@@ -363,7 +374,8 @@ export default function App() {
       const hash = window.location.hash;
       if (hash.includes('type=recovery') || hash.includes('reset-password')) {
         setAccountModalMode('update_password');
-        setIsAccountOpen(true);
+        setCurrentRoute('account');
+        window.history.replaceState(null, '', `/account${hash}`);
         return;
       }
       const cat = parseCategoryFromHash(hash);
@@ -457,6 +469,20 @@ export default function App() {
     showToast('Radiant Routine items added to bag with special 15% discount applied!');
   };
 
+  const handleAddGiftSetToCart = (setItems: { product: Product; shade: string }[]) => {
+    setCart((previous) => {
+      const next = [...previous];
+      for (const { product, shade } of setItems) {
+        const index = next.findIndex((item) => item.id === product.id && item.selectedShade === shade);
+        if (index >= 0) next[index] = { ...next[index], qty: next[index].qty + 1 };
+        else next.push({ ...product, image: product.shadeImages?.[shade] || product.image, selectedShade: shade, qty: 1 });
+      }
+      return next;
+    });
+    setIsCartOpen(true);
+    showToast('Gift set items added to your bag');
+  };
+
   const handleUpdateQty = (productId: number, delta: number, shade?: string) => {
     setCart((prev) =>
       prev
@@ -508,13 +534,9 @@ export default function App() {
         onOpenCart={() => setIsCartOpen(true)}
         onOpenAccount={() => {
           setAccountModalMode('signin');
-          setIsAccountOpen(true);
+          navigate('account');
         }}
-        onOpenShadeFinder={() => setIsShadeFinderOpen(true)}
-        onOpenUploadModal={() => {
-          setUploadModalTarget(null);
-          setIsUploadModalOpen(true);
-        }}
+        onOpenShadeFinder={() => navigate('shade-finder')}
         onSelectCategory={handleSelectCategory}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -528,13 +550,32 @@ export default function App() {
         {currentRoute === 'our-story' ? (
           <OurStoryPage
             onNavigateHome={() => navigate('home')}
-            onOpenShadeFinder={() => setIsShadeFinderOpen(true)}
+            onOpenShadeFinder={() => navigate('shade-finder')}
             onSelectCategory={handleSelectCategory}
           />
         ) : currentRoute === 'contact' ? (
           <ContactPage
             onNavigateHome={() => navigate('home')}
-            onOpenShadeFinder={() => setIsShadeFinderOpen(true)}
+            onOpenShadeFinder={() => navigate('shade-finder')}
+          />
+        ) : currentRoute === 'shipping-returns' ? (
+          <ShippingReturnsPage onNavigateContact={() => navigate('contact')} onNavigateHome={() => navigate('home')} />
+        ) : currentRoute === 'shade-finder' ? (
+          <ShadeFinderModal
+            isOpen
+            inline
+            onClose={() => navigate('home')}
+            onAddRoutineToCart={handleAddRoutineToCart}
+            products={products}
+          />
+        ) : currentRoute === 'gifts-sets' ? (
+          <GiftsSetsPage
+            products={products}
+            onAddSetToCart={handleAddGiftSetToCart}
+            onShopAll={() => {
+              navigate('home');
+              window.setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 100);
+            }}
           />
         ) : currentRoute === 'account' ? (
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -554,39 +595,32 @@ export default function App() {
                 onAddToCart={handleAddToCart}
               />
             ) : (
-              <div className="max-w-md mx-auto text-center py-16 px-6 bg-white rounded-3xl border border-stone-200 shadow-md space-y-4">
-                <div className="w-14 h-14 rounded-full bg-[#FAF9F5] border border-stone-200 flex items-center justify-center mx-auto text-stone-800">
-                  <span className="font-serif text-2xl font-bold">B</span>
-                </div>
-                <h2 className="font-serif text-2xl font-semibold text-stone-900">
-                  Sign In to My Account
-                </h2>
-                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Sign in or create an account to view your order history, manage delivery addresses, and save favorites to your wishlist.
-                </p>
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAccountModalMode('signin');
-                      setIsAccountOpen(true);
-                    }}
-                    className="w-full sm:w-auto px-6 py-2.5 bg-[#1E1B18] text-white text-xs font-semibold rounded-xl hover:bg-stone-800 transition-colors cursor-pointer"
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAccountModalMode('signup');
-                      setIsAccountOpen(true);
-                    }}
-                    className="w-full sm:w-auto px-6 py-2.5 border border-stone-300 text-stone-800 text-xs font-semibold rounded-xl hover:bg-stone-50 transition-colors cursor-pointer"
-                  >
-                    Create Account
-                  </button>
-                </div>
-              </div>
+              <AccountModal
+                isOpen
+                inline
+                initialMode={accountModalMode}
+                onClose={() => {}}
+                currentUser={null}
+                onSignIn={async (email, password) => {
+                  const user = await signIn(email, password);
+                  setCurrentUser(user);
+                  showToast(`Welcome back, ${user.name}!`);
+                }}
+                onSignUp={async (name, email, password) => {
+                  const res = await signUp(name, email, password);
+                  if (!res.requiresEmailConfirmation) setCurrentUser({ email: res.email, name: res.name });
+                  return res;
+                }}
+                onResetPassword={resetPassword}
+                onUpdatePassword={async (password) => {
+                  const user = await updatePassword(password);
+                  setCurrentUser(user);
+                  showToast('Password updated successfully!');
+                  return user;
+                }}
+                onSignOut={() => { signOut(); setCurrentUser(null); }}
+                pastOrders={[]}
+              />
             )}
           </div>
         ) : (
@@ -594,8 +628,8 @@ export default function App() {
           <>
             {/* Cinematic Hero */}
             <Hero
-              onOpenShadeFinder={() => setIsShadeFinderOpen(true)}
-              onExploreClick={() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' })}
+              onOpenShadeFinder={() => navigate('shade-finder')}
+              onExploreClick={() => handleSelectCategory('ALL')}
             />
 
             {/* Core Values / Commitments */}
@@ -608,11 +642,6 @@ export default function App() {
               onAddToCart={handleAddToCart}
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
-              onUploadPhoto={handleOpenUploadForProduct}
-              onOpenUploadModal={() => {
-                setUploadModalTarget(null);
-                setIsUploadModalOpen(true);
-              }}
               selectedCategory={selectedCategory}
               onSelectCategory={handleSelectCategory}
               wishlistIds={wishlistIds}
@@ -622,10 +651,6 @@ export default function App() {
             {/* Philosophy & Craft */}
             <PhilosophySection
               image={philosophyImage}
-              onUploadPhoto={() => {
-                setUploadModalTarget('philosophy');
-                setIsUploadModalOpen(true);
-              }}
             />
 
             {/* Verified Community Reviews */}
@@ -644,7 +669,7 @@ export default function App() {
 
       {/* Footer */}
       <Footer
-        onOpenShadeFinder={() => setIsShadeFinderOpen(true)}
+        onOpenShadeFinder={() => navigate('shade-finder')}
         onSelectCategory={handleSelectCategory}
         onNavigate={navigate}
       />
@@ -654,7 +679,6 @@ export default function App() {
         product={selectedProduct ? products.find(p => p.id === selectedProduct.id) || selectedProduct : null}
         onClose={() => setSelectedProduct(null)}
         onAddToCart={handleAddToCart}
-        onUploadPhoto={handleOpenUploadForProduct}
         isWishlisted={selectedProduct ? wishlistIds.includes(selectedProduct.id) : false}
         onToggleWishlist={toggleWishlist}
       />
@@ -683,50 +707,6 @@ export default function App() {
       <OrderSuccessModal
         order={completedOrder}
         onClose={() => setCompletedOrder(null)}
-      />
-
-      <ShadeFinderModal
-        isOpen={isShadeFinderOpen}
-        onClose={() => setIsShadeFinderOpen(false)}
-        onAddRoutineToCart={handleAddRoutineToCart}
-        products={products}
-        onUploadPhoto={handleOpenUploadForProduct}
-      />
-
-      <AccountModal
-        isOpen={isAccountOpen}
-        onClose={() => setIsAccountOpen(false)}
-        currentUser={currentUser}
-        initialMode={accountModalMode}
-        onSignIn={async (email, password) => {
-          const user = await signIn(email, password);
-          setCurrentUser(user);
-          showToast(`Welcome back, ${user.name}!`);
-        }}
-        onSignUp={async (name, email, password) => {
-          const res = await signUp(name, email, password);
-          if (res && !res.requiresEmailConfirmation) {
-            setCurrentUser({ email: res.email, name: res.name });
-          }
-          return res;
-        }}
-        onResetPassword={resetPassword}
-        onUpdatePassword={async (password) => {
-          const user = await updatePassword(password);
-          setCurrentUser(user);
-          showToast('Password updated successfully!');
-          return user;
-        }}
-        onSignOut={() => {
-          signOut();
-          setCurrentUser(null);
-          showToast('Signed out of account');
-        }}
-        pastOrders={pastOrders.filter(order => order.customer.email.toLowerCase() === currentUser?.email.toLowerCase())}
-        products={products}
-        wishlistIds={wishlistIds}
-        onToggleWishlist={toggleWishlist}
-        onAddToCart={handleAddToCart}
       />
 
       {/* Exact Product & Philosophy Photo Uploader */}

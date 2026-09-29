@@ -21,7 +21,7 @@ export const Values: React.FC = () => {
     {
       icon: Truck,
       title: 'Fast & Free UK Delivery',
-      description: 'Complimentary tracked delivery on all domestic UK orders over £50.'
+      description: 'Free UK delivery is shown on every demo order, with no minimum spend.'
     }
   ];
 

@@ -3,7 +3,7 @@ import React from 'react';
 interface FooterProps {
   onOpenShadeFinder: () => void;
   onSelectCategory?: (category: string) => void;
-  onNavigate?: (route: 'home' | 'our-story' | 'contact' | 'account') => void;
+  onNavigate?: (route: 'home' | 'our-story' | 'contact' | 'account' | 'shipping-returns' | 'gifts-sets') => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCategory, onNavigate }) => {
@@ -50,6 +50,12 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
               Collection
             </h4>
             <ul className="space-y-2">
+              <li>
+                <a href="/gifts-sets" onClick={(e) => { e.preventDefault(); onNavigate?.('gifts-sets'); }}
+                  className="hover:text-white transition-colors cursor-pointer block py-0.5">
+                  Gifts &amp; Sets
+                </a>
+              </li>
               <li>
                 <a
                   href="#shop?category=face"
@@ -137,13 +143,13 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
                 </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={onOpenShadeFinder}
+                <a
+                  href="/shade-finder"
+                  onClick={(e) => { e.preventDefault(); onOpenShadeFinder(); }}
                   className="hover:text-white transition-colors text-left cursor-pointer block py-0.5"
                 >
                   Shade Finder Matcher
-                </button>
+                </a>
               </li>
               <li>
                 <a
@@ -192,18 +198,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
             <ul className="space-y-2">
               <li>
                 <a
-                  href="/contact"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onNavigate?.('contact');
-                  }}
-                  className="hover:text-white transition-colors cursor-pointer block py-0.5"
-                >
-                  Contact Client Services
-                </a>
-              </li>
-              <li>
-                <a
                   href="/account"
                   onClick={(e) => {
                     e.preventDefault();
@@ -215,16 +209,21 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
                 </a>
               </li>
               <li>
-                <span className="text-stone-400 block py-0.5">
-                  Free UK Tracked Delivery (&gt;£50)
-                </span>
+                <a href="/shipping-returns" onClick={e => { e.preventDefault(); onNavigate?.('shipping-returns'); }}
+                  className="hover:text-white transition-colors cursor-pointer block py-0.5">
+                  Shipping &amp; Returns
+                </a>
               </li>
               <li>
                 <a
-                  href="mailto:rebeccaekeh89@gmail.com"
-                  className="text-stone-400 hover:text-white transition-colors block py-0.5 break-all"
+                  href="/contact"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate?.('contact');
+                  }}
+                  className="text-stone-400 hover:text-white transition-colors block py-0.5"
                 >
-                  rebeccaekeh89@gmail.com
+                  Contact form
                 </a>
               </li>
             </ul>

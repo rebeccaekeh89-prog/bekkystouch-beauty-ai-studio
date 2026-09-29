@@ -1,6 +1,8 @@
 type AuthUser = { email: string; user_metadata?: { full_name?: string } };
-const url = import.meta.env.VITE_SUPABASE_URL;
-const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+export const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://ttdxwrzbvievwkiozpgl.supabase.co';
+export const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_Vd1gM6mKNN9xFvuzvFuaZg_konQzkCV';
+const url = supabaseUrl;
+const key = supabasePublishableKey;
 const storageKey = 'bekkys_touch_session';
 
 async function request(path: string, body: object, method: string = 'POST', headers: Record<string, string> = {}) {

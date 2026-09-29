@@ -325,7 +325,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
             <p className="text-[11px] text-stone-500 text-center flex items-center justify-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-stone-400" />
-              <span>30-Day Hassle-Free Returns & Free UK Shipping over £50</span>
+              <span>Free UK delivery shown at checkout · Demo orders only</span>
             </p>
           </div>
         </div>
