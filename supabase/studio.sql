@@ -49,3 +49,17 @@ GRANT SELECT ON public.studio_products TO anon, authenticated;
 REVOKE ALL ON public.studio_orders FROM anon, authenticated;
 GRANT SELECT ON public.studio_products TO service_role;
 GRANT SELECT, INSERT ON public.studio_orders TO service_role;
+
+-- The active storefront creates orders through /api/orders. Retire the older
+-- public RPC, and keep the signup trigger callable only by its database owner.
+DO $$
+BEGIN
+  IF to_regprocedure('public.create_bt_order(jsonb)') IS NOT NULL THEN
+    REVOKE EXECUTE ON FUNCTION public.create_bt_order(jsonb) FROM PUBLIC, anon, authenticated;
+  END IF;
+  IF to_regprocedure('public.handle_new_user()') IS NOT NULL THEN
+    REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
+    ALTER FUNCTION public.handle_new_user() SET search_path = pg_catalog, public;
+  END IF;
+END;
+$$;
