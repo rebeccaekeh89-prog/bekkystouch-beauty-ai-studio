@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, MapPin, Send, CheckCircle2, AlertCircle, Clock, Sparkles, HelpCircle, ArrowRight } from 'lucide-react';
+import { Mail, Send, CheckCircle2, AlertCircle, Sparkles, HelpCircle, ArrowRight } from 'lucide-react';
 
 interface ContactPageProps {
   onNavigateHome: () => void;
@@ -21,7 +21,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    document.title = "Contact Client Services | Bekky's Touch Beauty";
+    document.title = "Contact Us | Bekky's Touch Beauty";
 
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
@@ -80,7 +80,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
           </div>
 
           <h1 className="font-serif text-3xl sm:text-5xl font-semibold text-stone-900 tracking-tight">
-            We are here to assist you.
+            Contact Us
           </h1>
 
           <p className="mt-4 text-sm sm:text-base text-stone-600 max-w-xl mx-auto leading-relaxed font-light">
@@ -90,90 +90,10 @@ export const ContactPage: React.FC<ContactPageProps> = ({
       </section>
 
       {/* Main Content */}
-      <section className="py-14 sm:py-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
-          {/* Left Column: Direct Contact Information */}
-          <div className="lg:col-span-5 space-y-6">
-            <div>
-              <h2 className="font-serif text-2xl font-semibold text-stone-900">
-                Contact Details
-              </h2>
-              <p className="text-xs sm:text-sm text-stone-600 mt-1 leading-relaxed">
-                Connect directly with our client care team for boutique support and recommendations.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              {/* Email Card */}
-              <div className="p-5 bg-white rounded-2xl border border-stone-200/90 shadow-xs flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-amber-100/70 border border-amber-200/80 flex items-center justify-center text-amber-900 shrink-0">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-serif text-sm font-semibold text-stone-900">Direct Email</h3>
-                  <a
-                    href="mailto:rebeccaekeh89@gmail.com"
-                    className="text-xs text-amber-900 hover:text-amber-950 underline font-medium block mt-0.5 break-all"
-                  >
-                    rebeccaekeh89@gmail.com
-                  </a>
-                  <p className="text-[11px] text-stone-500 mt-1">
-                    Replies delivered within 24–48 business hours.
-                  </p>
-                </div>
-              </div>
-
-              {/* Location Card */}
-              <div className="p-5 bg-white rounded-2xl border border-stone-200/90 shadow-xs flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-amber-100/70 border border-amber-200/80 flex items-center justify-center text-amber-900 shrink-0">
-                  <MapPin className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-serif text-sm font-semibold text-stone-900">Registered Office</h3>
-                  <p className="text-xs text-stone-700 font-medium mt-0.5">
-                    Bekky’s Touch Beauty Ltd.
-                  </p>
-                  <p className="text-xs text-stone-500">London · United Kingdom</p>
-                </div>
-              </div>
-
-              {/* Hours Card */}
-              <div className="p-5 bg-white rounded-2xl border border-stone-200/90 shadow-xs flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-amber-100/70 border border-amber-200/80 flex items-center justify-center text-amber-900 shrink-0">
-                  <Clock className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-serif text-sm font-semibold text-stone-900">Concierge Hours</h3>
-                  <p className="text-xs text-stone-700 mt-0.5">
-                    Monday to Friday: 9:00 AM – 5:30 PM (GMT)
-                  </p>
-                  <p className="text-[11px] text-stone-500 mt-0.5">
-                    Weekend inquiries answered on the following business day.
-                  </p>
-                </div>
-              </div>
-
-              {/* Shade Match Callout */}
-              <div className="p-5 bg-[#FAF4EA] rounded-2xl border border-[#E9DFCE] text-amber-950 flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="font-serif text-sm font-semibold">Unsure of your shade?</h3>
-                  <p className="text-xs text-amber-900/80 mt-1">
-                    Take our 60-second Shade Finder Matcher to discover your complexion match.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={onOpenShadeFinder}
-                  className="px-3 py-1.5 bg-[#1E1B18] text-white text-xs font-semibold rounded-lg hover:bg-stone-800 transition-colors shrink-0 cursor-pointer"
-                >
-                  Find Shade
-                </button>
-              </div>
-            </div>
-          </div>
-
+      <section className="py-14 sm:py-20 max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full">
           {/* Right Column: Interactive Contact Form */}
-          <div className="lg:col-span-7">
+          <div className="w-full">
             <div className="bg-white rounded-3xl border border-stone-200/90 shadow-md p-6 sm:p-10">
               {submitted ? (
                 <div className="text-center py-10 space-y-4">
@@ -184,7 +104,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                     Message Sent Successfully!
                   </h3>
                   <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto leading-relaxed">
-                    Thank you, <strong>{name}</strong>. Your enquiry has been received. Our dedicated Client Services team will carefully review your enquiry and respond to <strong>{email}</strong> within 24–48 business hours.
+                    Thank you, <strong>{name}</strong>. Your inquiry has been received. Our dedicated Client Services team will carefully review your enquiry and respond to <strong>{email}</strong> within 24–48 business hours.
                   </p>
 
                   <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -327,4 +247,3 @@ export const ContactPage: React.FC<ContactPageProps> = ({
     </div>
   );
 };
-
