@@ -5,7 +5,7 @@ Production: https://bekkystouch-beauty.vercel.app/
 Repository: https://github.com/rebeccaekeh89-prog/bekkystouch-beauty-ai-studio
 
 ## Run locally
-Install Node.js 22 or later and Git.
+Install Node.js 24 or later and Git.
 ```sh
 git clone https://github.com/rebeccaekeh89-prog/bekkystouch-beauty-ai-studio.git
 cd bekkystouch-beauty-ai-studio
@@ -32,6 +32,7 @@ Redeploy after changing server configuration. Vite alone does not run the api/ V
 npm run lint
 npm run build
 node tests/orders.test.mjs
+node tests/wishlist.test.mjs
 ```
 Customer checks: registration, email confirmation, sign-in/out, password recovery, profile settings, offline checkout, order history, saved addresses, wishlist, and contact submission. Email-based authentication was tested by the project owner. Cross-device storage should be tested using the same account in two browser sessions.
 
@@ -43,7 +44,7 @@ Customer checks: registration, email confirmation, sign-in/out, password recover
 - Order history from studio_orders, with bt_orders as fallback.
 - Saved addresses in studio_address_books, protected by customer ownership policies.
 - Contact enquiries genuinely saved to contact_messages; no automatic email notifications.
-- Wishlist currently stored per customer in the browser (account sync is the next stage).
+- Signed-in wishlists persist in studio_wishlists across devices; existing customer browser favourites migrate on sign-in. Guest favourites remain local.
 - Basket persists in the current browser.
 
 ## Database structure versus application integration
@@ -56,7 +57,8 @@ Tables existing in the database are not evidence of complete customer workflows.
 | studio_address_books | Account-based address persistence |
 | contact_messages | Real contact submission |
 | newsletter_subscribers | Subscription endpoint exists; end-to-end delivery unverified |
-| wishlists | Table exists; website integration pending |
+| studio_wishlists | Account-synced favourites with ownership policies |
+| wishlists | Legacy structure; live catalogue uses studio_wishlists |
 | carts / cart_items | Structure exists; basket is browser-based |
 | categories / product_variants / product_images | Structure exists; full database-driven integration pending |
 | bt_order_items / orders / order_items | Structures exist; current checkout uses embedded studio order items |
@@ -69,9 +71,9 @@ Tables existing in the database are not evidence of complete customer workflows.
 | customer_addresses | Structure exists; current website uses studio_address_books |
 
 ## Security and limitations
-Sensitive data access is controlled by database policies and server validation. RLS is enabled on public tables; a full policy audit of every table has not been completed. Address ownership read isolation was checked. Anonymous and customer reads of contact messages are denied. Server secrets stay in Vercel, not browser code. Do not include customer data, secrets, backups or .env.local in a public repository.
+Sensitive data access is controlled by database policies and server validation. RLS is enabled on public tables; a full policy audit of every table has not been completed. Address ownership read isolation was checked. Wishlist owner inserts/deletes and cross-account read/insert/delete denial were tested in a rolled-back database transaction. Anonymous and customer reads of contact messages are denied. Server secrets stay in Vercel, not browser code. Do not include customer data, secrets, backups or .env.local in a public repository.
 
 This is a coursework prototype: offline payments, no automated fulfilment, no online payment processing. Backup restoration has not been tested in a separate project.
 
 ## Database and recovery documentation
-Existing setup files are in supabase/. A complete schema snapshot and recovery guide are being added as a separate checkpoint; do not treat the existing partial scripts as a complete production backup.
+The complete public application structure snapshot is in supabase/schema.sql. Recovery procedures and exclusions are in RECOVERY.md. The snapshot includes the recorded address, contact and wishlist migrations; do not apply those migrations a second time after restoring it. A structural snapshot is not a data or media backup.

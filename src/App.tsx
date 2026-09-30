@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { loadWishlist, saveWishlistItem, removeWishlistItem, readSavedWishlist } from './wishlist';
 import { Product, CartItem, CustomerOrder } from './types';
 import { PRODUCTS } from './data/products';
 import { Navbar } from './components/Navbar';
@@ -153,49 +154,67 @@ export default function App() {
 
   const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
 
-  // Wishlist state
-  const [wishlistIds, setWishlistIds] = useState<number[]>(() => {
-    try {
-      const saved = localStorage.getItem('bekkys_touch_wishlist_guest');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [wishlistIds, setWishlistIds] = useState<number[]>([]);
+  const [wishlistReady, setWishlistReady] = useState(false);
+  const wishlistBusy = useRef(false);
+  const wishlistAccount = useRef<string | null>(null);
+  wishlistAccount.current = currentUser?.email.toLowerCase() || null;
 
   useEffect(() => {
-    const wishlistKey = currentUser
-      ? `bekkys_touch_wishlist_${currentUser.email.toLowerCase()}`
-      : 'bekkys_touch_wishlist_guest';
-    try {
-      const saved = JSON.parse(localStorage.getItem(wishlistKey) || '[]');
-      setWishlistIds(Array.isArray(saved) ? saved.filter(Number.isSafeInteger) : []);
-    } catch {
-      setWishlistIds([]);
-    }
+    let active = true;
+    setWishlistReady(false);
+    setWishlistIds([]);
+    const email = currentUser?.email.toLowerCase();
+    const load = async () => {
+      try {
+        if (!email) {
+          const saved = readSavedWishlist('bekkys_touch_wishlist_guest');
+          if (active) { setWishlistIds(saved); setWishlistReady(true); }
+          return;
+        }
+        const key = `bekkys_touch_wishlist_${email}`;
+        const legacy = readSavedWishlist(key);
+        // Preserve browser favourites until each valid catalogue entry is saved.
+        for (const id of legacy) {
+          if (!active) return;
+          if (PRODUCTS.some(product => product.id === id)) await saveWishlistItem(id);
+        }
+        const synced = await loadWishlist();
+        if (!active) return;
+        localStorage.removeItem(key);
+        setWishlistIds(synced);
+        setWishlistReady(true);
+      } catch (error) {
+        if (active) showToast(error instanceof Error ? error.message : 'Could not load your wishlist. Please refresh.');
+      }
+    };
+    load();
+    return () => { active = false; };
   }, [currentUser?.email]);
 
-  const toggleWishlist = (productId: number) => {
-    setWishlistIds((prev) => {
-      const next = prev.includes(productId)
-        ? prev.filter((id) => id !== productId)
-        : [...prev, productId];
-      try {
-        const wishlistKey = currentUser
-          ? `bekkys_touch_wishlist_${currentUser.email.toLowerCase()}`
-          : 'bekkys_touch_wishlist_guest';
-        localStorage.setItem(wishlistKey, JSON.stringify(next));
-      } catch (e) {
-        console.warn('Could not save wishlist to storage:', e);
-      }
-      const prod = products.find((p) => p.id === productId);
-      if (prev.includes(productId)) {
-        showToast(`Removed ${prod?.name || 'item'} from your wishlist`);
-      } else {
-        showToast(`Added ${prod?.name || 'item'} to your wishlist!`);
-      }
-      return next;
-    });
+  const toggleWishlist = async (productId: number) => {
+    if (!wishlistReady || wishlistBusy.current) {
+      showToast('Your wishlist is syncing. Please try again shortly.');
+      return;
+    }
+    const email = wishlistAccount.current;
+    const removing = wishlistIds.includes(productId);
+    const next = removing ? wishlistIds.filter(id => id !== productId) : [...wishlistIds, productId];
+    wishlistBusy.current = true;
+    try {
+      if (email) {
+        if (removing) await removeWishlistItem(productId);
+        else await saveWishlistItem(productId);
+      } else localStorage.setItem('bekkys_touch_wishlist_guest', JSON.stringify(next));
+      if (wishlistAccount.current !== email) return;
+      setWishlistIds(next);
+      const product = products.find(p => p.id === productId);
+      showToast(`${removing ? 'Removed' : 'Added'} ${product?.name || 'item'} ${removing ? 'from' : 'to'} your wishlist.`);
+    } catch (error) {
+      if (wishlistAccount.current === email) showToast(error instanceof Error ? error.message : 'Could not save your wishlist.');
+    } finally {
+      wishlistBusy.current = false;
+    }
   };
 
   const [searchQuery, setSearchQuery] = useState('');
