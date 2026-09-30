@@ -222,9 +222,6 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                   </div>
 
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-                    <p className="text-[11px] text-stone-400">
-                      Inquiries are directed to <span className="text-stone-600 font-medium">rebeccaekeh89@gmail.com</span>
-                    </p>
 
                     <button
                       type="submit"
