@@ -71,9 +71,12 @@ Tables existing in the database are not evidence of complete customer workflows.
 | customer_addresses | Structure exists; current website uses studio_address_books |
 
 ## Security and limitations
-Sensitive data access is controlled by database policies and server validation. RLS is enabled on public tables; a full policy audit of every table has not been completed. Address ownership read isolation was checked. Wishlist owner inserts/deletes and cross-account read/insert/delete denial were tested in a rolled-back database transaction. Anonymous and customer reads of contact messages are denied. Server secrets stay in Vercel, not browser code. Do not include customer data, secrets, backups or .env.local in a public repository.
+Sensitive data access is controlled by database policies and server validation. RLS and effective client grants across all 29 public tables were audited on 30 September 2026. See SECURITY_AUDIT.md for fixes, tests and the exact scope; this is not a complete security certification. Address ownership read isolation was checked. Wishlist owner inserts/deletes and cross-account read/insert/delete denial were tested in a rolled-back database transaction. Anonymous and customer reads of contact messages are denied. Server secrets stay in Vercel, not browser code. Do not include customer data, secrets, backups or .env.local in a public repository.
 
 This is a coursework prototype: offline payments, no automated fulfilment, no online payment processing. Backup restoration has not been tested in a separate project.
 
 ## Database and recovery documentation
 The complete public application structure snapshot is in supabase/schema.sql. Recovery procedures and exclusions are in RECOVERY.md. The snapshot includes the recorded address, contact and wishlist migrations; do not apply those migrations a second time after restoring it. A structural snapshot is not a data or media backup.
+
+## Administration and security evidence
+There is no custom website admin panel. Administration uses Supabase, Vercel and GitHub dashboards. See SECURITY_AUDIT.md and supabase/tests/access_audit.sql. Dashboard MFA and membership settings require account-owner verification.
