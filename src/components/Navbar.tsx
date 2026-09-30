@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ShoppingBag, Search, Sparkles, User, X, Menu, Camera, BookOpen, Mail } from 'lucide-react';
 
 interface NavbarProps {
@@ -32,8 +32,25 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
 
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const startY = window.scrollY;
+    const closeOnScroll = () => {
+      if (Math.abs(window.scrollY - startY) > 12) setMobileMenuOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileMenuOpen(false);
+    };
+    window.addEventListener('scroll', closeOnScroll, { passive: true });
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      window.removeEventListener('scroll', closeOnScroll);
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [mobileMenuOpen]);
+
   return (
-    <header className="sticky top-0 z-40 bg-[#FAF9F5]/95 backdrop-blur-md border-b border-[#E8E4DC] transition-all">
+    <header className="relative lg:sticky lg:top-0 z-40 bg-[#FAF9F5]/95 backdrop-blur-md border-b border-[#E8E4DC] transition-all">
       {/* Slim Top Announcement Banner */}
       {!announcementDismissed && (
         <div className="bg-[#1E1B18] text-[#FAF9F5] text-xs py-2 px-4 flex items-center justify-between transition-all">
@@ -52,7 +69,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       )}
 
       {/* Main Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-2 sm:gap-4">
         {/* Brand Wordmark */}
         <a
           href="/"
@@ -66,7 +83,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </a>
 
         {/* Navigation Links */}
-        <nav className="hidden md:flex items-center gap-3 lg:gap-6 text-xs lg:text-sm font-medium text-stone-700 tracking-wide">
+        <nav className="hidden lg:flex items-center gap-3 lg:gap-6 text-xs lg:text-sm font-medium text-stone-700 tracking-wide">
           <a
             href="#shop"
             onClick={(e) => {
@@ -149,11 +166,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Primary Actions & Controls */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-4">
           {/* Search Trigger */}
-          <div className="relative">
+          <div className="static sm:relative">
             {showSearch ? (
-              <div className="flex items-center bg-white border border-stone-300 rounded-full px-3 py-1.5 shadow-xs w-48 sm:w-64 transition-all">
+              <div className="flex items-center bg-white border border-stone-300 rounded-full px-3 py-1.5 shadow-xs absolute left-4 right-4 top-full z-50 sm:static sm:w-48 lg:w-64 transition-all">
                 <Search className="w-4 h-4 text-stone-400 mr-2 shrink-0" />
                 <input
                   type="text"
@@ -176,7 +193,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             ) : (
               <button
-                onClick={() => setShowSearch(true)}
+                onClick={() => { setMobileMenuOpen(false); setShowSearch(true); }}
                 className="p-2 text-stone-700 hover:text-stone-900 rounded-full hover:bg-stone-100/80 transition-colors cursor-pointer"
                 aria-label="Open search"
               >
@@ -235,18 +252,20 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Mobile menu hamburger */}
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-stone-700 hover:text-stone-900 cursor-pointer"
-            aria-label="Toggle mobile menu"
+            onClick={() => { setShowSearch(false); setMobileMenuOpen(!mobileMenuOpen); }}
+            className="lg:hidden p-2 text-stone-700 hover:text-stone-900 cursor-pointer"
+            aria-label={mobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-navigation"
           >
-            <Menu className="w-5 h-5" />
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#FAF9F5] border-t border-stone-200 px-5 py-4 space-y-3">
+        <nav id="mobile-navigation" aria-label="Mobile navigation" className="lg:hidden max-h-[45dvh] overflow-y-auto overscroll-contain bg-[#FAF9F5] border-t border-stone-200 px-5 py-3 space-y-1">
           <a
             href="#shop"
             onClick={(e) => {
@@ -340,10 +359,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex items-center gap-2 text-sm font-semibold text-amber-950 py-1.5 w-full text-left"
             >
               <User className="w-4 h-4 text-amber-800" />
-              <span>{currentUser ? `My Account (${currentUser.name})` : 'Sign In / Register'}</span>
+              <span className="min-w-0 break-words">{currentUser ? `My Account (${currentUser.name})` : 'Sign In / Register'}</span>
             </button>
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );

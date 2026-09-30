@@ -295,20 +295,20 @@ export const MyAccountArea: React.FC<MyAccountAreaProps> = ({
     <div className="bg-white rounded-3xl border border-stone-200 shadow-xl overflow-hidden max-w-5xl mx-auto my-8">
       {/* Account Hero Bar */}
       <div className="bg-[#1E1B18] text-[#FAF9F5] p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
+        <div className="flex min-w-0 items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-amber-950 border border-amber-800/80 flex items-center justify-center font-serif text-2xl font-bold text-amber-200 shrink-0">
             {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'B'}
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="font-serif text-2xl font-semibold tracking-tight">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="font-serif text-2xl font-semibold tracking-tight break-words">
                 {currentUser.name || 'Valued Customer'}
               </h2>
               <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-semibold uppercase tracking-wider">
                 Member
               </span>
             </div>
-            <p className="text-xs text-stone-400 mt-0.5">{currentUser.email}</p>
+            <p className="text-xs text-stone-400 mt-0.5 break-all">{currentUser.email}</p>
           </div>
         </div>
 
