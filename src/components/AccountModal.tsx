@@ -102,7 +102,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
         setTimeout(() => onClose(), 1200);
       } else {
         setSuccessMessage(
-          `Account created successfully! Based on your Supabase configuration, an email confirmation link was sent to ${emailInput.trim()}. Please verify your email before signing in.`
+          `Account created successfully! An email confirmation link was sent to ${emailInput.trim()}. Please verify your email before signing in.`
         );
       }
     } catch (error: any) {
