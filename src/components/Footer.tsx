@@ -151,24 +151,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShadeFinder, onSelectCateg
                   Shade Finder Matcher
                 </a>
               </li>
-              <li>
-                <a
-                  href="#values"
-                  onClick={(e) => {
-                    if (window.location.pathname !== '/') {
-                      e.preventDefault();
-                      onNavigate?.('home');
-                      setTimeout(() => {
-                        const el = document.getElementById('values');
-                        if (el) el.scrollIntoView({ behavior: 'smooth' });
-                      }, 100);
-                    }
-                  }}
-                  className="hover:text-white transition-colors block py-0.5"
-                >
-                  Clean Formula Standards
-                </a>
-              </li>
+
               <li>
                 <a
                   href="#reviews"
