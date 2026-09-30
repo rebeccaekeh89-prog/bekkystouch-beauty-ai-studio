@@ -7,15 +7,7 @@ import {
 } from 'lucide-react';
 import { getAuthToken, updateUserProfile, updatePassword } from '../auth';
 
-export interface SavedAddress {
-  id: string;
-  name: string;
-  phone: string;
-  address: string;
-  city: string;
-  postcode: string;
-  isDefault: boolean;
-}
+import { SavedAddress, loadAddressBook, saveAddressBook } from '../addressBook';
 
 interface MyAccountAreaProps {
   currentUser: { name: string; email: string };
@@ -63,29 +55,54 @@ export const MyAccountArea: React.FC<MyAccountAreaProps> = ({
   const [settingsError, setSettingsError] = useState('');
   const [settingsBusy, setSettingsBusy] = useState(false);
 
-  // Load Saved Addresses strictly for this user
+  const [addressesBusy, setAddressesBusy] = useState(true);
+  const [addressesError, setAddressesError] = useState('');
+
   useEffect(() => {
-    try {
-      const key = `bekkys_touch_addresses_${currentUser.email.toLowerCase()}`;
-      const saved = localStorage.getItem(key);
-      if (saved) {
-        setAddresses(JSON.parse(saved));
-      } else {
-        setAddresses([]);
+    let active = true;
+    setAddressesBusy(true);
+    setAddressesError('');
+    setAddresses([]);
+    const load = async () => {
+      try {
+        let synced = await loadAddressBook();
+        const key = `bekkys_touch_addresses_${currentUser.email.toLowerCase()}`;
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const legacy: SavedAddress[] = JSON.parse(raw);
+          const merged = [...synced, ...legacy.filter(a => !synced.some(b => b.id === a.id))];
+          let hasDefault = false;
+          synced = merged.map(a => {
+            const isDefault = a.isDefault && !hasDefault;
+            if (isDefault) hasDefault = true;
+            return { ...a, isDefault };
+          });
+          await saveAddressBook(synced);
+          localStorage.removeItem(key);
+        }
+        if (active) setAddresses(synced);
+      } catch (error) {
+        if (active) setAddressesError(error instanceof Error ? error.message : 'Could not load addresses.');
+      } finally {
+        if (active) setAddressesBusy(false);
       }
-    } catch (e) {
-      console.warn('Could not read saved addresses:', e);
-      setAddresses([]);
-    }
+    };
+    load();
+    return () => { active = false; };
   }, [currentUser.email]);
 
-  const saveAddressesToStorage = (newList: SavedAddress[]) => {
-    setAddresses(newList);
+  const saveAddressesToStorage = async (newList: SavedAddress[]) => {
+    setAddressesBusy(true);
+    setAddressesError('');
     try {
-      const key = `bekkys_touch_addresses_${currentUser.email.toLowerCase()}`;
-      localStorage.setItem(key, JSON.stringify(newList));
-    } catch (e) {
-      console.warn('Could not save addresses to storage:', e);
+      await saveAddressBook(newList);
+      setAddresses(newList);
+      return true;
+    } catch (error) {
+      setAddressesError(error instanceof Error ? error.message : 'Could not save addresses.');
+      return false;
+    } finally {
+      setAddressesBusy(false);
     }
   };
 
@@ -173,8 +190,9 @@ export const MyAccountArea: React.FC<MyAccountAreaProps> = ({
   }, [currentUser.email, localOrders, products]);
 
   // Handle Add/Edit Address
-  const handleSaveAddress = (e: React.FormEvent) => {
+  const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (addressesBusy || addressesError && !isAddingAddress) return;
     if (!addrStreet.trim() || !addrCity.trim() || !addrPostcode.trim()) return;
 
     let updated: SavedAddress[];
@@ -207,7 +225,7 @@ export const MyAccountArea: React.FC<MyAccountAreaProps> = ({
         : [...addresses, newAddr];
     }
 
-    saveAddressesToStorage(updated);
+    if (!await saveAddressesToStorage(updated)) return;
     setIsAddingAddress(false);
     setEditingAddressId(null);
     setAddrName('');
@@ -218,9 +236,10 @@ export const MyAccountArea: React.FC<MyAccountAreaProps> = ({
     setAddrDefault(false);
   };
 
-  const handleDeleteAddress = (id: string) => {
+  const handleDeleteAddress = async (id: string) => {
+    if (addressesBusy) return;
     const updated = addresses.filter(a => a.id !== id);
-    saveAddressesToStorage(updated);
+    await saveAddressesToStorage(updated);
   };
 
   // Handle Profile Name Update
@@ -559,7 +578,7 @@ export const MyAccountArea: React.FC<MyAccountAreaProps> = ({
                 </p>
               </div>
 
-              {!isAddingAddress && (
+              {!isAddingAddress && !addressesBusy && !addressesError && (
                 <button
                   type="button"
                   onClick={() => {
@@ -580,6 +599,8 @@ export const MyAccountArea: React.FC<MyAccountAreaProps> = ({
               )}
             </div>
 
+            {addressesError && <p role="alert" className="text-sm text-rose-700">{addressesError}</p>}
+            {addressesBusy && <p role="status" className="text-sm text-stone-600">Syncing your saved addresses…</p>}
             {/* Address Add / Edit Form */}
             {isAddingAddress && (
               <form onSubmit={handleSaveAddress} className="p-6 bg-[#FAF9F5] rounded-2xl border border-stone-200 space-y-4">
@@ -676,9 +697,10 @@ export const MyAccountArea: React.FC<MyAccountAreaProps> = ({
                 <div className="flex items-center gap-3 pt-2">
                   <button
                     type="submit"
+                    disabled={addressesBusy}
                     className="px-5 py-2 bg-[#1E1B18] text-white text-xs font-semibold rounded-xl hover:bg-stone-800 transition-colors"
                   >
-                    Save Address
+                    {addressesBusy ? 'Saving…' : 'Save Address'}
                   </button>
                   <button
                     type="button"
@@ -960,3 +982,4 @@ export const MyAccountArea: React.FC<MyAccountAreaProps> = ({
     </div>
   );
 };
+
