@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { ArrowRight, Gift, ShoppingBag } from 'lucide-react';
 import { Product } from '../types';
 
-const sets = [
+const sets: { title: string; line: string; description: string; names: string[]; accent: string; productId?: number }[] = [
+  { title: 'Bake & Set Duo', line: 'Set your look.', description: 'Your loose powder shade with a trio of mini puffs.', names: ['Loose Baking Powder', 'Mini Beauty Puffs Trio'], accent: 'bg-[#F6E9E7]', productId: 17 },
+  { title: 'Smooth Finish Set', line: 'Blend and finish.', description: 'Pressed powder and an ivory brush set with a matching pouch.', names: ['Pressed Powder', 'Makeup Brush Set with Pouch'], accent: 'bg-[#F0E8DF]', productId: 18 },
+  { title: 'Complete Beauty Set', line: 'The full finishing routine.', description: 'Both powders, the brush set and the mini puff trio. Choose your powder shades below.', names: ['Loose Baking Powder', 'Pressed Powder', 'Makeup Brush Set with Pouch', 'Mini Beauty Puffs Trio'], accent: 'bg-[#F3E5E1]', productId: 19 },
   {
     title: 'The Everyday Glow Set',
     line: 'A little glow goes a long way.',
@@ -58,15 +61,17 @@ export const GiftsSetsPage: React.FC<GiftsSetsPageProps> = ({ products, onAddSet
           {sets.map((set) => {
             const items = set.names.map((name) => products.find((product) => product.name === name)).filter((product): product is Product => Boolean(product));
             if (items.length !== set.names.length) return null;
-            const total = items.reduce((sum, item) => sum + item.price, 0);
+            const bundle = set.productId ? products.find(p => p.id === set.productId) : undefined;
+            if (set.productId && !bundle) return null;
+            const total = bundle?.price ?? items.reduce((sum, item) => sum + item.price, 0);
             return (
               <article key={set.title} className="flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
                 <div className={`relative grid aspect-[4/3] grid-cols-2 gap-2 overflow-hidden p-4 ${set.accent}`}>
                   <div className="absolute left-6 top-6 z-10 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-stone-800 shadow-sm">
                     Bekky’s Touch set
                   </div>
-                  {items.slice(0, 2).map((item) => (
-                    <img key={item.id} src={item.image} alt={`Bekky's Touch ${item.name}`} className="h-full w-full rounded-xl bg-white object-cover" loading="lazy" />
+                  {items.map((item) => (
+                    <img key={item.id} src={item.shadeImages?.[selectedShades[item.id] || item.shadesList?.[0] || item.shade] || item.image} alt={`Bekky's Touch ${item.name}`} className="h-full w-full rounded-xl bg-white object-contain" loading="lazy" />
                   ))}
                 </div>
                 <div className="flex flex-1 flex-col p-6">
@@ -102,7 +107,13 @@ export const GiftsSetsPage: React.FC<GiftsSetsPageProps> = ({ products, onAddSet
                   </div>
                   <button
                     type="button"
-                    onClick={() => onAddSetToCart(items.map((product) => ({ product, shade: selectedShades[product.id] || product.shadesList?.[0] || product.shade })))}
+                    onClick={() => {
+                      const chosen = items.map(product => ({ product, shade: selectedShades[product.id] || product.shadesList?.[0] || product.shade }));
+                      if (bundle) {
+                        const shade = chosen.filter(item => item.product.category === 'Face').map(item => `${item.product.id === 15 ? 'Loose' : 'Pressed'}: ${item.shade}`).join(' / ');
+                        onAddSetToCart([{ product: bundle, shade }]);
+                      } else onAddSetToCart(chosen);
+                    }}
                     className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#1E1B18] px-5 py-3 text-sm font-semibold text-white hover:bg-stone-800"
                   >
                     <ShoppingBag className="h-4 w-4" aria-hidden="true" /> Add set to bag

@@ -374,7 +374,260 @@ export const PRODUCTS: Product[] = [
     howToUse: 'Use circular buffing motions to work foundation or cream contour seamlessly into the skin for a streak-free, airbrushed finish.',
     volumeOrWeight: '1 Professional Brush',
     undertoneRecommendation: ['Universal']
+  },
+{
+  "id": 13,
+  "name": "Mini Beauty Puffs Trio",
+  "category": "Tools",
+  "price": 5,
+  "shade": "mini-beauty-puffs",
+  "image": "/products/new/mini-beauty-puffs.webp",
+  "badge": "New",
+  "rating": 0,
+  "reviewsCount": 0,
+  "description": "Three branded mini powder puffs in an ivory, caramel and chocolate colour trio.",
+  "benefits": [
+    "An addition to your everyday makeup routine."
+  ],
+  "ingredients": [
+    "Coursework product concept: final ingredient and material details have not been specified."
+  ],
+  "howToUse": "Use with your makeup routine and clean tools regularly.",
+  "volumeOrWeight": "1 set"
+},
+{
+  "id": 14,
+  "name": "Makeup Brush Set with Pouch",
+  "category": "Tools",
+  "price": 20,
+  "shade": "makeup-brush-set",
+  "image": "/products/new/makeup-brush-set.webp",
+  "badge": "New",
+  "rating": 0,
+  "reviewsCount": 0,
+  "description": "An ivory makeup brush collection with a matching storage pouch.",
+  "benefits": [
+    "An addition to your everyday makeup routine."
+  ],
+  "ingredients": [
+    "Coursework product concept: final ingredient and material details have not been specified."
+  ],
+  "howToUse": "Use with your makeup routine and clean tools regularly.",
+  "volumeOrWeight": "1 set"
+},
+{
+  "id": 15,
+  "name": "Loose Baking Powder",
+  "category": "Face",
+  "price": 18,
+  "shade": "Cloud Veil",
+  "image": "/products/new/cloud-veil.webp",
+  "badge": "New",
+  "rating": 0,
+  "reviewsCount": 0,
+  "description": "Explore nine loose powder shades, from Cloud Veil to Cocoa Velvet.",
+  "benefits": [
+    "Choose your preferred shade or finish."
+  ],
+  "ingredients": [
+    "Coursework product concept: final ingredient and material details have not been specified."
+  ],
+  "howToUse": "Apply a small amount with a brush or puff, then blend gently.",
+  "volumeOrWeight": "1 powder",
+  "shadesList": [
+    "Cloud Veil",
+    "Petal Pink",
+    "Ivory Silk",
+    "Golden Banana",
+    "Peach Glow",
+    "Honey Beige",
+    "Amber Sand",
+    "Caramel Spice",
+    "Cocoa Velvet"
+  ],
+  "shadeImages": {
+    "Cloud Veil": "/products/new/cloud-veil.webp",
+    "Petal Pink": "/products/new/petal-pink.webp",
+    "Ivory Silk": "/products/new/ivory-silk.webp",
+    "Golden Banana": "/products/new/golden-banana.webp",
+    "Peach Glow": "/products/new/peach-glow.webp",
+    "Honey Beige": "/products/new/honey-beige.webp",
+    "Amber Sand": "/products/new/amber-sand.webp",
+    "Caramel Spice": "/products/new/caramel-spice.webp",
+    "Cocoa Velvet": "/products/new/cocoa-velvet.webp"
   }
+},
+{
+  "id": 16,
+  "name": "Pressed Powder",
+  "category": "Face",
+  "price": 16,
+  "shade": "Fairy Lights",
+  "image": "/products/new/fairy-lights.webp",
+  "badge": "New",
+  "rating": 0,
+  "reviewsCount": 0,
+  "description": "A compact pressed powder available in six shades.",
+  "benefits": [
+    "Choose your preferred shade or finish."
+  ],
+  "ingredients": [
+    "Coursework product concept: final ingredient and material details have not been specified."
+  ],
+  "howToUse": "Apply a small amount with a brush or puff, then blend gently.",
+  "volumeOrWeight": "1 powder",
+  "shadesList": [
+    "Fairy Lights",
+    "Rosy Fairy Lights",
+    "Sun-Kissed Beige",
+    "Toasted Almond",
+    "Dark Mocha",
+    "Deep Chocolate"
+  ],
+  "shadeImages": {
+    "Fairy Lights": "/products/new/fairy-lights.webp",
+    "Rosy Fairy Lights": "/products/new/rosy-fairy-lights.webp",
+    "Sun-Kissed Beige": "/products/new/sun-kissed-beige.webp",
+    "Toasted Almond": "/products/new/toasted-almond.webp",
+    "Dark Mocha": "/products/new/dark-mocha.webp",
+    "Deep Chocolate": "/products/new/deep-chocolate.webp"
+  }
+},
+{
+  "id": 17,
+  "name": "Bake & Set Duo",
+  "category": "Tools",
+  "price": 23,
+  "shade": "Loose: Cloud Veil",
+  "image": "/products/new/cloud-veil.webp",
+  "badge": "Set",
+  "rating": 0,
+  "reviewsCount": 0,
+  "description": "Includes Loose Baking Powder and Mini Beauty Puffs Trio.",
+  "benefits": [
+    "An addition to your everyday makeup routine."
+  ],
+  "ingredients": [
+    "Coursework product concept: final ingredient and material details have not been specified."
+  ],
+  "howToUse": "Use with your makeup routine and clean tools regularly.",
+  "volumeOrWeight": "1 set",
+  "shadesList": [
+    "Loose: Cloud Veil",
+    "Loose: Petal Pink",
+    "Loose: Ivory Silk",
+    "Loose: Golden Banana",
+    "Loose: Peach Glow",
+    "Loose: Honey Beige",
+    "Loose: Amber Sand",
+    "Loose: Caramel Spice",
+    "Loose: Cocoa Velvet"
+  ]
+},
+{
+  "id": 18,
+  "name": "Smooth Finish Set",
+  "category": "Tools",
+  "price": 36,
+  "shade": "Pressed: Fairy Lights",
+  "image": "/products/new/fairy-lights.webp",
+  "badge": "Set",
+  "rating": 0,
+  "reviewsCount": 0,
+  "description": "Includes Pressed Powder and Makeup Brush Set with Pouch.",
+  "benefits": [
+    "An addition to your everyday makeup routine."
+  ],
+  "ingredients": [
+    "Coursework product concept: final ingredient and material details have not been specified."
+  ],
+  "howToUse": "Use with your makeup routine and clean tools regularly.",
+  "volumeOrWeight": "1 set",
+  "shadesList": [
+    "Pressed: Fairy Lights",
+    "Pressed: Rosy Fairy Lights",
+    "Pressed: Sun-Kissed Beige",
+    "Pressed: Toasted Almond",
+    "Pressed: Dark Mocha",
+    "Pressed: Deep Chocolate"
+  ]
+},
+{
+  "id": 19,
+  "name": "Complete Beauty Set",
+  "category": "Tools",
+  "price": 57,
+  "shade": "Loose: Cloud Veil / Pressed: Fairy Lights",
+  "image": "/products/new/cloud-veil.webp",
+  "badge": "Set",
+  "rating": 0,
+  "reviewsCount": 0,
+  "description": "Includes Loose Baking Powder, Pressed Powder, Makeup Brush Set with Pouch and Mini Beauty Puffs Trio.",
+  "benefits": [
+    "An addition to your everyday makeup routine."
+  ],
+  "ingredients": [
+    "Coursework product concept: final ingredient and material details have not been specified."
+  ],
+  "howToUse": "Use with your makeup routine and clean tools regularly.",
+  "volumeOrWeight": "1 set",
+  "shadesList": [
+    "Loose: Cloud Veil / Pressed: Fairy Lights",
+    "Loose: Cloud Veil / Pressed: Rosy Fairy Lights",
+    "Loose: Cloud Veil / Pressed: Sun-Kissed Beige",
+    "Loose: Cloud Veil / Pressed: Toasted Almond",
+    "Loose: Cloud Veil / Pressed: Dark Mocha",
+    "Loose: Cloud Veil / Pressed: Deep Chocolate",
+    "Loose: Petal Pink / Pressed: Fairy Lights",
+    "Loose: Petal Pink / Pressed: Rosy Fairy Lights",
+    "Loose: Petal Pink / Pressed: Sun-Kissed Beige",
+    "Loose: Petal Pink / Pressed: Toasted Almond",
+    "Loose: Petal Pink / Pressed: Dark Mocha",
+    "Loose: Petal Pink / Pressed: Deep Chocolate",
+    "Loose: Ivory Silk / Pressed: Fairy Lights",
+    "Loose: Ivory Silk / Pressed: Rosy Fairy Lights",
+    "Loose: Ivory Silk / Pressed: Sun-Kissed Beige",
+    "Loose: Ivory Silk / Pressed: Toasted Almond",
+    "Loose: Ivory Silk / Pressed: Dark Mocha",
+    "Loose: Ivory Silk / Pressed: Deep Chocolate",
+    "Loose: Golden Banana / Pressed: Fairy Lights",
+    "Loose: Golden Banana / Pressed: Rosy Fairy Lights",
+    "Loose: Golden Banana / Pressed: Sun-Kissed Beige",
+    "Loose: Golden Banana / Pressed: Toasted Almond",
+    "Loose: Golden Banana / Pressed: Dark Mocha",
+    "Loose: Golden Banana / Pressed: Deep Chocolate",
+    "Loose: Peach Glow / Pressed: Fairy Lights",
+    "Loose: Peach Glow / Pressed: Rosy Fairy Lights",
+    "Loose: Peach Glow / Pressed: Sun-Kissed Beige",
+    "Loose: Peach Glow / Pressed: Toasted Almond",
+    "Loose: Peach Glow / Pressed: Dark Mocha",
+    "Loose: Peach Glow / Pressed: Deep Chocolate",
+    "Loose: Honey Beige / Pressed: Fairy Lights",
+    "Loose: Honey Beige / Pressed: Rosy Fairy Lights",
+    "Loose: Honey Beige / Pressed: Sun-Kissed Beige",
+    "Loose: Honey Beige / Pressed: Toasted Almond",
+    "Loose: Honey Beige / Pressed: Dark Mocha",
+    "Loose: Honey Beige / Pressed: Deep Chocolate",
+    "Loose: Amber Sand / Pressed: Fairy Lights",
+    "Loose: Amber Sand / Pressed: Rosy Fairy Lights",
+    "Loose: Amber Sand / Pressed: Sun-Kissed Beige",
+    "Loose: Amber Sand / Pressed: Toasted Almond",
+    "Loose: Amber Sand / Pressed: Dark Mocha",
+    "Loose: Amber Sand / Pressed: Deep Chocolate",
+    "Loose: Caramel Spice / Pressed: Fairy Lights",
+    "Loose: Caramel Spice / Pressed: Rosy Fairy Lights",
+    "Loose: Caramel Spice / Pressed: Sun-Kissed Beige",
+    "Loose: Caramel Spice / Pressed: Toasted Almond",
+    "Loose: Caramel Spice / Pressed: Dark Mocha",
+    "Loose: Caramel Spice / Pressed: Deep Chocolate",
+    "Loose: Cocoa Velvet / Pressed: Fairy Lights",
+    "Loose: Cocoa Velvet / Pressed: Rosy Fairy Lights",
+    "Loose: Cocoa Velvet / Pressed: Sun-Kissed Beige",
+    "Loose: Cocoa Velvet / Pressed: Toasted Almond",
+    "Loose: Cocoa Velvet / Pressed: Dark Mocha",
+    "Loose: Cocoa Velvet / Pressed: Deep Chocolate"
+  ]
+}
 ];
 
 export const CATEGORIES = ['ALL', 'FACE', 'EYES', 'BROWS', 'LIPS', 'TOOLS'] as const;

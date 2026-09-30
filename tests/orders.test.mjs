@@ -67,6 +67,16 @@ test('rejects unavailable products', async () => {
   const res = await run({ method: 'POST', body: validOrder }, async () => reply([]));
   assert.equal(res.code, 400);
 });
+test('gift set price is calculated from its server catalogue entry', async () => {
+  const shade = 'Loose: Cocoa Velvet / Pressed: Deep Chocolate';
+  const res = await run({ method: 'POST', body: { ...validOrder, items: [{ product_id: 19, quantity: 1, shade }], total: 59 } }, async (url, options) => {
+    if (url.includes('products')) return reply([{ id: 19, name: 'Complete Beauty Set', price: 57 }]);
+    const saved = JSON.parse(options.body);
+    assert.equal(saved.total, 57); assert.equal(saved.items[0].shade, shade);
+    return reply([{ id: 'gift-test' }]);
+  });
+  assert.equal(res.code, 201); assert.equal(res.body.total, 57);
+});
 test('legacy service role keys authenticate database reads and writes', async () => {
   let calls = 0;
   const original = globalThis.fetch;

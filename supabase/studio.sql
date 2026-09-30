@@ -63,3 +63,24 @@ BEGIN
   END IF;
 END;
 $$;
+
+-- New powders, application tools and fixed-price gift sets.
+INSERT INTO public.bt_products (id,name,category,price,shade,image,badge,active) VALUES
+(13,'Mini Beauty Puffs Trio','Tools',5,'mini-beauty-puffs','/products/new/mini-beauty-puffs.webp','New',true),
+(14,'Makeup Brush Set with Pouch','Tools',20,'makeup-brush-set','/products/new/makeup-brush-set.webp','New',true),
+(15,'Loose Baking Powder','Face',18,'Cloud Veil','/products/new/cloud-veil.webp','New',true),
+(16,'Pressed Powder','Face',16,'Fairy Lights','/products/new/fairy-lights.webp','New',true),
+(17,'Bake & Set Duo','Tools',23,'Loose: Cloud Veil','/products/new/cloud-veil.webp','Set',true),
+(18,'Smooth Finish Set','Tools',36,'Pressed: Fairy Lights','/products/new/fairy-lights.webp','Set',true),
+(19,'Complete Beauty Set','Tools',57,'Loose: Cloud Veil / Pressed: Fairy Lights','/products/new/cloud-veil.webp','Set',true)
+ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name, category=EXCLUDED.category, price=EXCLUDED.price, shade=EXCLUDED.shade, image=EXCLUDED.image, badge=EXCLUDED.badge, active=EXCLUDED.active;
+
+INSERT INTO public.studio_products (id,name,price,active) VALUES
+(13,'Mini Beauty Puffs Trio',5,true),
+(14,'Makeup Brush Set with Pouch',20,true),
+(15,'Loose Baking Powder',18,true),
+(16,'Pressed Powder',16,true),
+(17,'Bake & Set Duo',23,true),
+(18,'Smooth Finish Set',36,true),
+(19,'Complete Beauty Set',57,true)
+ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name, price=EXCLUDED.price, active=EXCLUDED.active;
