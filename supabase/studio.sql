@@ -66,8 +66,8 @@ $$;
 
 -- New powders, application tools and fixed-price gift sets.
 INSERT INTO public.bt_products (id,name,category,price,shade,image,badge,active) VALUES
-(13,'Mini Beauty Puffs Trio','Tools',5,'mini-beauty-puffs','/products/new/mini-beauty-puffs.webp','New',true),
-(14,'Makeup Brush Set with Pouch','Tools',20,'makeup-brush-set','/products/new/makeup-brush-set.webp','New',true),
+(13,'Mini Beauty Puffs Trio','Tools',5,'Ivory, caramel and chocolate','/products/new/mini-beauty-puffs.webp','New',true),
+(14,'Makeup Brush Set with Pouch','Tools',20,'Ivory brush set','/products/new/makeup-brush-set.webp','New',true),
 (15,'Loose Baking Powder','Face',18,'Cloud Veil','/products/new/cloud-veil.webp','New',true),
 (16,'Pressed Powder','Face',16,'Fairy Lights','/products/new/fairy-lights.webp','New',true),
 (17,'Bake & Set Duo','Tools',23,'Loose: Cloud Veil','/products/new/cloud-veil.webp','Set',true),

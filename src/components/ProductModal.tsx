@@ -133,7 +133,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 {product.name}
               </h2>
 
-              <div className="flex items-center gap-3 mt-2">
+              {product.reviewsCount > 0 && <div className="flex items-center gap-3 mt-2">
                 <div className="flex items-center text-amber-500">
                   {[...Array(5)].map((_, i) => (
                     <Star
@@ -153,7 +153,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 <span className="text-xs text-stone-500">
                   {product.reviewsCount} verified reviews
                 </span>
-              </div>
+              </div>}
 
               <div className="mt-3 text-2xl font-serif font-bold text-stone-900 tabular-nums">
                 £{product.price.toFixed(2)}

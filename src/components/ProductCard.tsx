@@ -131,7 +131,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <div>
           <div className="flex items-center justify-between text-xs text-stone-500 uppercase tracking-wider mb-1">
             <span>{product.category}</span>
-            <span className="text-stone-400">★ {product.rating.toFixed(1)}</span>
+            {product.reviewsCount > 0 && <span className="text-stone-400">★ {product.rating.toFixed(1)}</span>}
           </div>
 
           <h3 className="font-serif text-lg font-semibold text-stone-900 leading-snug group-hover:text-amber-950 transition-colors">
