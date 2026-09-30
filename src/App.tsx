@@ -637,7 +637,7 @@ export default function App() {
 
             {/* Main Catalogue Grid */}
             <ShopSection
-              products={products}
+              products={products.filter(product => ![17, 18, 19].includes(product.id))}
               onSelectProduct={setSelectedProduct}
               onAddToCart={handleAddToCart}
               searchQuery={searchQuery}
