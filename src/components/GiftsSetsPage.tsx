@@ -66,12 +66,12 @@ export const GiftsSetsPage: React.FC<GiftsSetsPageProps> = ({ products, onAddSet
             const total = bundle?.price ?? items.reduce((sum, item) => sum + item.price, 0);
             return (
               <article key={set.title} className="flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
-                <div className={`relative grid aspect-[4/3] grid-cols-2 gap-2 overflow-hidden p-4 ${set.accent}`}>
+                <div className={`relative grid aspect-[4/3] grid-cols-2 gap-2 overflow-hidden p-4 ${items.length > 2 ? 'grid-rows-2' : 'grid-rows-1'} ${set.accent}`}>
                   <div className="absolute left-6 top-6 z-10 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-stone-800 shadow-sm">
                     Bekky’s Touch set
                   </div>
                   {items.map((item) => (
-                    <img key={item.id} src={item.shadeImages?.[selectedShades[item.id] || item.shadesList?.[0] || item.shade] || item.image} alt={`Bekky's Touch ${item.name}`} className="h-full w-full rounded-xl bg-white object-contain" loading="lazy" />
+                    <img key={item.id} src={item.shadeImages?.[selectedShades[item.id] || item.shadesList?.[0] || item.shade] || item.image} alt={`Bekky's Touch ${item.name}`} className="h-full min-h-0 w-full min-w-0 rounded-xl bg-white object-contain" loading="lazy" />
                   ))}
                 </div>
                 <div className="flex flex-1 flex-col p-6">
