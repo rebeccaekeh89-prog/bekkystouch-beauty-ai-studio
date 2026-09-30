@@ -60,12 +60,6 @@ export const ContactPage: React.FC<ContactPageProps> = ({
     }, 600);
   };
 
-  const mailtoLink = `mailto:rebeccaekeh89@gmail.com?subject=${encodeURIComponent(
-    `[Bekky's Touch] ${subject} from ${name || 'Customer'}`
-  )}&body=${encodeURIComponent(
-    `Hello Bekky's Touch Team,\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone || 'Not provided'}\nInquiry Type: ${subject}\n\nMessage:\n${message}\n`
-  )}`;
-
   return (
     <div className="bg-[#FAF9F5] min-h-screen text-stone-800">
       {/* Header */}
@@ -101,17 +95,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                     Message Sent Successfully!
                   </h3>
                   <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto leading-relaxed">
-                    Thank you, <strong>{name}</strong>. Your inquiry has been received. Our concierge team in London will review your notes and reply directly to <strong>{email}</strong> within 24–48 business hours.
+                    Thank you, <strong>{name}</strong>. Your inquiry has been received. Our dedicated Client Services team will carefully review your enquiry and respond to <strong>{email}</strong> within 24–48 business hours.
                   </p>
 
                   <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
-                    <a
-                      href={mailtoLink}
-                      className="w-full sm:w-auto px-5 py-2.5 bg-[#FAF9F5] border border-stone-300 hover:bg-stone-100 text-stone-800 text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
-                    >
-                      <Mail className="w-4 h-4 text-stone-600" />
-                      <span>Open in Mail Client</span>
-                    </a>
+
                     <button
                       type="button"
                       onClick={() => {
